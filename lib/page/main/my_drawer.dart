@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:net_easy_music/model/drawer_manage.dart';
+import 'package:provider/provider.dart';
+
+import 'nav_bar.dart';
 
 class MyDrawer extends StatefulWidget {
   @override
@@ -6,6 +10,26 @@ class MyDrawer extends StatefulWidget {
 }
 
 class _MyDrawerState extends State<MyDrawer> {
+  @override
+  void initState() {
+    open();
+    super.initState();
+  }
+
+  open()  {
+   Provider.of<DrawerManage>(context, listen: false).openDrawer();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (Provider.of<DrawerManage>(context, listen: false).isOpen) {
+      Provider.of<DrawerManage>(context, listen: false).closeDrawer();
+      print(Provider.of<DrawerManage>(context, listen: false).isOpen);
+    }
+    print('ssssss');
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -23,57 +47,32 @@ class _MyDrawerState extends State<MyDrawer> {
           HSLColor.fromAHSL(.0, 0, 0, 0.8).toColor()
         ],
       )),
-      child: ListView(
+      child: Column(
         children: <Widget>[
-          UserAccountsDrawerHeader(
-            accountEmail: Text('wo shi Email'),
-            accountName: Text('我是Drawer'),
-            onDetailsPressed: () {},
-            decoration: BoxDecoration(color: Colors.transparent),
-            currentAccountPicture: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://p2.music.126.net/ox4WsLbNGLpgcZkdn0IUbA==/109951165085426101.jpg?param=300y300'),
-            ),
+          SizedBox(
+            height: MediaQuery.of(context).padding.top,
           ),
-          ListTile(
-            title: Text('ListTile1'),
-            subtitle: Text(
-              'ListSubtitle1',
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            leading: CircleAvatar(child: Text("1")),
-            onTap: () {
-              Navigator.pop(context);
-            },
+          NavBar(
+            codePoint: 0xE606,
           ),
-          Divider(), //分割线
-          ListTile(
-            title: Text('ListTile2'),
-            subtitle: Text(
-              'ListSubtitle2',
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            leading: CircleAvatar(child: Text("2")),
-            onTap: () {
-              Navigator.pop(context);
-            },
+          NavBar(
+            codePoint: 0xE606,
           ),
-          Divider(), //分割线
-          ListTile(
-            title: Text('ListTile3'),
-            subtitle: Text(
-              'ListSubtitle3',
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            leading: CircleAvatar(child: Text("3")),
-            onTap: () {
-              Navigator.pop(context);
-            },
+          NavBar(
+            codePoint: 0xE61A,
           ),
-          Divider(), //分割线
+          NavBar(
+            codePoint: 0xE620,
+          ),
+          NavBar(
+            codePoint: 0xE652,
+          ),
+          NavBar(
+            codePoint: 0xE612,
+          ),
+          NavBar(
+            codePoint: 0xE712,
+          ),
         ],
       ),
     );

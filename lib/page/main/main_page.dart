@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:net_easy_music/components/blurBackground.dart';
-
+import 'package:provider/provider.dart';
+import 'package:net_easy_music/model/drawer_manage.dart';
 import 'my_drawer.dart';
 
 class MainScreen extends StatefulWidget {
@@ -20,21 +21,24 @@ class _MainScreenState extends State<MainScreen> {
         children: <Widget>[
           Align(
             alignment: Alignment.centerLeft,
-            child: IconButton(
-              padding: const EdgeInsets.all(18.0),
-              onPressed: () => _scaffoldKey.currentState.openDrawer(),
-              icon: Icon(
-                Icons.menu,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
+            child: Provider.of<DrawerManage>(context).isOpen
+                ? Container()
+                : IconButton(
+                    padding: const EdgeInsets.all(18.0),
+                    onPressed: () {
+                      _scaffoldKey.currentState.openDrawer();
+                    },
+                    icon: Icon(
+                      Icons.menu,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
           )
         ],
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
