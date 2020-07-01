@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:net_easy_music/model/drawer_manage.dart';
-import 'package:provider/provider.dart';
-
+import 'package:net_easy_music/page/main/user_nav_bar.dart';
 import 'nav_bar.dart';
 
 class MyDrawer extends StatefulWidget {
+  final ValueChanged<bool> callback;
+
+  const MyDrawer({Key key, @required this.callback}) : super(key: key);
   @override
   _MyDrawerState createState() => _MyDrawerState();
 }
@@ -12,28 +13,20 @@ class MyDrawer extends StatefulWidget {
 class _MyDrawerState extends State<MyDrawer> {
   @override
   void initState() {
-    open();
+    widget.callback(true);
     super.initState();
   }
 
-  open()  {
-   Provider.of<DrawerManage>(context, listen: false).openDrawer();
-  }
-
   @override
-  void didChangeDependencies() {
-    if (Provider.of<DrawerManage>(context, listen: false).isOpen) {
-      Provider.of<DrawerManage>(context, listen: false).closeDrawer();
-      print(Provider.of<DrawerManage>(context, listen: false).isOpen);
-    }
-    print('ssssss');
-    super.didChangeDependencies();
+  void dispose() {
+    widget.callback(false);
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width * .65,
+      width: MediaQuery.of(context).size.width * .5,
       decoration: BoxDecoration(
           gradient: LinearGradient(
         begin: Alignment.topCenter,
@@ -50,28 +43,38 @@ class _MyDrawerState extends State<MyDrawer> {
       child: Column(
         children: <Widget>[
           SizedBox(
-            height: MediaQuery.of(context).padding.top,
+            height: MediaQuery.of(context).padding.top + 30,
+          ),
+          UserNavBar(
+            title: '来登陆呀',
           ),
           NavBar(
             codePoint: 0xE606,
-          ),
-          NavBar(
-            codePoint: 0xE606,
+            title: '寻觅',
           ),
           NavBar(
             codePoint: 0xE61A,
+            title: '歌单',
           ),
           NavBar(
             codePoint: 0xE620,
+            title: '推荐',
           ),
           NavBar(
             codePoint: 0xE652,
+            title: '下载',
+          ),
+          NavBar(
+            codePoint: 0xE60F,
+            title: '极简',
           ),
           NavBar(
             codePoint: 0xE612,
+            title: '设置',
           ),
           NavBar(
             codePoint: 0xE712,
+            title: '关于',
           ),
         ],
       ),

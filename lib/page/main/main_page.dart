@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:net_easy_music/components/blurBackground.dart';
 import 'package:provider/provider.dart';
 import 'package:net_easy_music/model/drawer_manage.dart';
+import 'audioControl.dart';
 import 'my_drawer.dart';
 
 class MainScreen extends StatefulWidget {
@@ -21,40 +22,56 @@ class _MainScreenState extends State<MainScreen> {
         children: <Widget>[
           Align(
             alignment: Alignment.centerLeft,
-            child: Provider.of<DrawerManage>(context).isOpen
-                ? Container()
-                : IconButton(
-                    padding: const EdgeInsets.all(18.0),
-                    onPressed: () {
-                      _scaffoldKey.currentState.openDrawer();
-                    },
-                    icon: Icon(
-                      Icons.menu,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
+            child: IconButton(
+              padding: const EdgeInsets.all(18.0),
+              onPressed: () {
+                _scaffoldKey.currentState.openDrawer();
+              },
+              icon: Icon(
+                Icons.menu,
+                color: Provider.of<DrawerManage>(context).isOpen
+                    ? Colors.transparent
+                    : Colors.white,
+                size: 20,
+              ),
+            ),
           )
         ],
       ),
     );
   }
+
+  _onDrawerOpenOrClose(state) {
+    if (state) {
+      Future.delayed(Duration(seconds: 0), () {
+        Provider.of<DrawerManage>(context, listen: false).openDrawer();
+      });
+    } else {
+      Future.delayed(Duration(seconds: 0), () {
+        Provider.of<DrawerManage>(context, listen: false).closeDrawer();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: MyDrawer(),
+      drawer: MyDrawer(callback: _onDrawerOpenOrClose),
       body: SafeArea(
         child: new Stack(
           children: <Widget>[
-            Container(
-              child: BlurBackground(
-                imageUrl: url,
-              ),
+            BlurBackground(
+              imageUrl: url,
             ),
             Column(
-              children: <Widget>[_buildTopBar(context)],
+              children: <Widget>[
+                _buildTopBar(context),
+                Expanded(child: Container()),
+                AudioControl()
+              ],
             ),
+            // AudioControl()
           ],
         ),
       ),
