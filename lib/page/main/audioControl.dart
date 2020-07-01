@@ -176,10 +176,6 @@ class _AudioControlState extends State<AudioControl> {
       ),
     );
   }
-
-  Color _iconsColor() {
-    return Colors.white54;
-  }
 }
 
 final TextStyle songNameStyle = const TextStyle(
