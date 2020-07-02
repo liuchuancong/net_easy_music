@@ -6,9 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:net_easy_music/model/drawer_manage.dart';
 import 'audioControl.dart';
 import 'my_drawer.dart';
-import 'package:flutter_visualizers/Visualizers/LineBarVisualizer.dart';
 import 'package:flutter_visualizers/visualizer.dart';
-
+import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:net_easy_music/visualizer/BarMusicVisualizer.dart';
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -19,17 +19,33 @@ class _MainScreenState extends State<MainScreen> {
       'http://p1.music.126.net/f3epEXZbd8O3IcFYWAA7GA==/109951165073323532.jpg?param=1440y1440';
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   StreamSubscription _sessionIdsubscription;
+  StreamSubscription _playStatesubscription;
   int _sessionId;
   @override
   void initState() {
     audioSessionListener();
+    _playStateListener();
     super.initState();
   }
 
   @override
   void dispose() {
     _sessionIdsubscription.cancel();
+    _playStatesubscription.cancel();
     super.dispose();
+  }
+
+  void _playStateListener() {
+    _playStatesubscription = AudioInstance()
+        .assetsAudioPlayer
+        .playerState
+        .listen((PlayerState state) {
+      if (state == PlayerState.stop || state == PlayerState.pause) {
+        setState(() {
+          _sessionId = null;
+        });
+      }
+    });
   }
 
   @override
@@ -48,20 +64,24 @@ class _MainScreenState extends State<MainScreen> {
                 _buildTopBar(context),
                 Expanded(
                     child: Container(
-                  child: _sessionId!=null ? new Visualizer(
-                    builder: (BuildContext context, List<int> wave) {
-                      return new CustomPaint(
-                        painter: new LineBarVisualizer(
-                          waveData: wave,
-                          height: MediaQuery.of(context).size.height,
-                          width: MediaQuery.of(context).size.width,
-                          color: Colors.purple,
-                        ),
-                        child: new Container(),
-                      );
-                    },
-                    id: _sessionId,
-                  ) : Container(),
+                  child: _sessionId != null
+                      ? new Visualizer(
+                          builder: (BuildContext context, List<int> wave) {
+                            if(wave.length == 0){
+                              return Container();
+                            }
+                            return new CustomPaint(
+                              painter: new BarMusicVisualizer(
+                                waveData: wave,
+                                height: MediaQuery.of(context).size.height,
+                                width: MediaQuery.of(context).size.width,
+                              ),
+                              child: new Container(),
+                            );
+                          },
+                          id: _sessionId,
+                        )
+                      : Container(),
                 )),
                 AudioControl()
               ],
@@ -76,7 +96,7 @@ class _MainScreenState extends State<MainScreen> {
   void audioSessionListener() {
     _sessionIdsubscription =
         AudioInstance().assetsAudioPlayer.audioSessionId.listen((sessionId) {
-          print('sessionId$sessionId');
+      print('sessionId$sessionId');
       if (sessionId != null) {
         setState(() {
           _sessionId = sessionId;
