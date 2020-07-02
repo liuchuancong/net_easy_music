@@ -8,7 +8,8 @@ import 'audioControl.dart';
 import 'my_drawer.dart';
 import 'package:flutter_visualizers/visualizer.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:net_easy_music/visualizer/BarMusicVisualizer.dart';
+import 'package:net_easy_music/visualizer/circleMusicVisualizer.dart';
+
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -67,13 +68,14 @@ class _MainScreenState extends State<MainScreen> {
                   child: _sessionId != null
                       ? new Visualizer(
                           builder: (BuildContext context, List<int> wave) {
-                            if(wave.length == 0){
+                            if (wave.length == 0) {
                               return Container();
                             }
                             return new CustomPaint(
-                              painter: new BarMusicVisualizer(
+                              painter: new CircleMusicVisualizer(
                                 waveData: wave,
-                                height: MediaQuery.of(context).size.height,
+                                height:
+                                    MediaQuery.of(context).size.height / 1.5,
                                 width: MediaQuery.of(context).size.width,
                               ),
                               child: new Container(),

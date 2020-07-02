@@ -25,32 +25,19 @@ class BarMusicVisualizer extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (waveData != null) {
-      double barWidth = width / density;
-      double div = waveData.length / density;
-      wavePaint.strokeWidth = barWidth - gap;
-      for (int i = 0; i < density; i++) {
-        int bytePosition = (i * div).ceil();
-        double top = (height / 2 - (((waveData[bytePosition]) - 128).abs()));
-        double barX = (i * barWidth) + (barWidth / 2);
-        if (top > height) top = top - height;
-        wavePaint.shader = ui.Gradient.linear(Offset(barX, height / 2),
-            Offset(barX, top), [Color(0x409EFF33), Color(0x409EFF33)]);
-        canvas.drawLine(Offset(barX, height / 2), Offset(barX, top), wavePaint);
+      for (var i = 0; i < waveData.length; i++) {
+        final Map visibleData = getDrawData(i, ['x', 'y', 'w', 'h']);
+        if (i == 0) {
+          wavePaint.shader = ui.Gradient.linear(
+              Offset(visibleData['x'], height),
+              Offset(visibleData['x'], height),
+              [Color(0x5cB87a33), Color(0x409EFF33)]);
+        }
+        canvas.drawRect(
+            new Rect.fromLTWH(visibleData['x'], visibleData['y'],
+                visibleData['w'], visibleData['h']),
+            wavePaint);
       }
-      // print(waveData.length);
-      // for (var i = 0; i < waveData.length; i++) {
-      //   final Map visibleData = getDrawData(i, ['x', 'y', 'w', 'h']);
-      //   if (i == 0) {
-      //     wavePaint.shader = ui.Gradient.linear(
-      //         Offset(visibleData['x'], height),
-      //         Offset(visibleData['x'], height),
-      //         [Color(0x5cB87a33),Color(0x409EFF33)]);
-      //   }
-      //   canvas.drawRect(
-      //       new Rect.fromLTWH(visibleData['x'], visibleData['y'],
-      //           visibleData['w'], visibleData['h']),
-      //       wavePaint);
-      // }
     }
   }
 
