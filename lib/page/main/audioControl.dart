@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:net_easy_music/components/controlButton.dart';
+import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
 
 class AudioControl extends StatefulWidget {
   const AudioControl({Key key}) : super(key: key);
@@ -69,7 +70,7 @@ class _AudioControlState extends State<AudioControl> {
     return Stack(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0),
+          padding: const EdgeInsets.symmetric(horizontal: 50.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
@@ -94,7 +95,7 @@ class _AudioControlState extends State<AudioControl> {
                 height: 8,
               ),
               NeumorphicSlider(
-                height: 6.0,
+                height: 5.0,
                 min: 0.0,
                 max: 100.0,
                 value: 80.0,
@@ -144,6 +145,16 @@ class _AudioControlState extends State<AudioControl> {
     );
   }
 
+  Future<void> _playSong() async {
+    print('start');
+    await AudioInstance().playNetWorkSong();
+    await AudioInstance().requestRecordAudioPermission();
+    final sessionId = await AudioInstance().assetsAudioPlayer.audioSessionId.first;
+    print(sessionId);
+    print('end');
+    
+  }
+
   Widget _buildPlayControl() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 30.0),
@@ -155,19 +166,28 @@ class _AudioControlState extends State<AudioControl> {
           ),
           ControlButton(
             codePoint: 0xE9D3,
+            onControlTaped: () => AudioInstance().prev(),
           ),
           // 播放按键
-          // ControlButton(
-          //   codePoint: 0xE600,
-          //   size: 20.0,
-          // ),
-          ControlButton(
-            codePoint: 0xE696,
-            size: 20.0,
-          ),
 
+          StreamBuilder(
+              stream: AudioInstance().assetsAudioPlayer.isPlaying,
+              builder: (context, snapshot) {
+                bool isPlaying = snapshot.data;
+                if (snapshot == null || snapshot.data == null) {
+                  isPlaying = false;
+                }
+                if (isPlaying) {
+                  return ControlButton(
+                      codePoint:0xE696,
+                      onControlTaped: () => AudioInstance().pause());
+                }
+                return ControlButton(
+                    codePoint: 0xE600, onControlTaped: () => _playSong());
+              }),
           ControlButton(
             codePoint: 0xE9D4,
+            onControlTaped: () => AudioInstance().next(),
           ),
           ControlButton(
             codePoint: 0xE625,
