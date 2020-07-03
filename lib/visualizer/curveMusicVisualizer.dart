@@ -43,9 +43,6 @@ class CurveMusicVisualizer extends CustomPainter {
       canvas.drawPoints(PointMode.polygon, arr0, _paint1);
       canvas.drawPoints(PointMode.polygon, arr1, _paint2);
       canvas.drawPoints(PointMode.polygon, arr2, _paint3);
-      // canvas.drawPath(_path1, _paint1);
-      // canvas.drawPath(_path1, _paint2);
-      // canvas.drawPath(_path1, _paint3);
     }
   }
 

@@ -8,7 +8,7 @@ import 'audioControl.dart';
 import 'my_drawer.dart';
 import 'package:flutter_visualizers/visualizer.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:net_easy_music/visualizer/circleMusicVisualizer.dart';
+import 'package:net_easy_music/visualizer/ParticleCircleMusicVisualizer.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -25,6 +25,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     audioSessionListener();
+    AudioInstance().requestRecordAudioPermission();
     _playStateListener();
     super.initState();
   }
@@ -72,10 +73,9 @@ class _MainScreenState extends State<MainScreen> {
                               return Container();
                             }
                             return new CustomPaint(
-                              painter: new CircleMusicVisualizer(
+                              painter: new ParticleCircleMusicVisualizer(
                                 waveData: wave,
-                                height:
-                                    MediaQuery.of(context).size.height / 1.5,
+                                height:MediaQuery.of(context).size.height,
                                 width: MediaQuery.of(context).size.width,
                               ),
                               child: new Container(),

@@ -146,8 +146,8 @@ class _AudioControlState extends State<AudioControl> {
   }
 
   Future<void> _playSong() async {
-    await AudioInstance().playNetWorkSong();
     await AudioInstance().requestRecordAudioPermission();
+    await AudioInstance().playNetWorkSong();
   }
 
   Widget _buildPlayControl() {

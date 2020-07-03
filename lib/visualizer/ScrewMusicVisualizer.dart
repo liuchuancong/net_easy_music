@@ -1,14 +1,14 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
-class CircleMusicVisualizer extends CustomPainter {
+class ScrewMusicVisualizer extends CustomPainter {
   final List<int> waveData;
   final double height;
   final double width;
 
-  CircleMusicVisualizer({
+  ScrewMusicVisualizer({
     @required this.waveData,
     @required this.height,
     @required this.width,
@@ -19,43 +19,59 @@ class CircleMusicVisualizer extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (waveData != null) {
+      int fftSize = 256;
       List arr = [];
       final _paint = Paint();
       Path path = new Path();
       for (var i = 0; i < waveData.length - 1; i++) {
-        final Map visibleData = getDrawData(i, ['a', 'r', 'h']);
+        final Map visibleData = getDrawData(i, ['a', 'r']);
         double r = visibleData['r'];
         double angle = visibleData['a'];
-        double h = visibleData['h'];
-        _paint.shader = ui.Gradient.radial(Offset(width / 2, height / 2), r,
-            [Color(0x409EFF00), Color(0x9c409EFF66)]);
-        r *= 0.7;
-        if (angle > math.pi || angle < 0) {
+        r *= 0.6 * (1 - i / (fftSize / 2)) * (1 - i / ((fftSize / 2)));
+        angle *= 4;
+        if (angle > 4 * math.pi || angle < 0) {
           return;
-        } else if (angle > 0 && angle < math.pi) {
+        } else if (angle > 0 && angle < 4 * math.pi) {
           Map map = new Map();
-          map['x'] = width / 2 - math.sin(angle) * (r*.8 - 10 - h / 20);
-          map['y'] = height / 2 - math.cos(angle) * (r*.8 - 10 - h / 20);
-          map['x1'] = width / 2 - math.sin(angle) * (r*.8 + h / 6);
-          map['y1'] = height / 2 - math.cos(angle) * (r*.8 + h / 6);
+          map['x'] = width / 2 +
+              math.sin(angle) * (r + waveData[i] / fftSize * r * 0.4);
+          map['y'] = height / 2 -
+              math.cos(angle) * (r + waveData[i] / fftSize * r * 0.4);
+          map['x1'] = width / 2 + math.sin(angle) * r * 0.8;
+          map['y1'] = height / 2 - math.cos(angle) * r * 0.8;
+          // _paint.shader = ui.Gradient.radial(Offset(width / 2, height / 2), r,
+          //     [Color(0x409EFF66), Color(0x5cB87a66)]);
           arr.add(map);
         }
-        Map map = new Map();
-        map['x'] = width / 2 + math.sin(angle) * (r*.8 - 10 - h / 20);
-        map['y'] = height / 2 - math.cos(angle) * (r*.8 - 10 - h / 20);
-        map['x1'] = width / 2 + math.sin(angle) * (r*.8 + h / 6);
-        map['y1'] = height / 2 - math.cos(angle) * (r*.8 + h / 6);
-        arr.add(map);
-
-        if (angle == math.pi) {
+        if (angle == 4 * math.pi) {
           for (var i = 0; i < arr.length; i++) {
             path.moveTo(arr[i]['x'], arr[i]['y']);
             path.lineTo(arr[i]['x1'], arr[i]['y1']);
+
             _paint.style = PaintingStyle.stroke; // 画线模式
-            _paint.strokeWidth = 0.8;
+            _paint.strokeWidth = math.max(4 * math.pi * r / (fftSize / 2), 2);
+            final Gradient gradient = new LinearGradient(
+              colors: <Color>[
+                Colors.lightGreen.withOpacity(1.0),
+                Colors.green.withOpacity(0.3),
+                Colors.yellow.withOpacity(0.2),
+                Colors.red.withOpacity(0.1),
+                Colors.red.withOpacity(0.0),
+              ],
+              stops: [
+                0.0,
+                0.5,
+                0.7,
+                0.9,
+                1.0,
+              ],
+            );
+            _paint.shader = gradient.createShader(new Rect.fromLTWH(arr[i]['x'], arr[i]['y'], arr[i]['x1'], arr[i]['y1']));
+            _paint.color = Colors.black;
+
+            canvas.drawPath(path, _paint);
           }
         }
-        canvas.drawPath(path, _paint);
       }
     }
   }
