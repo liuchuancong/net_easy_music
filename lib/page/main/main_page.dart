@@ -6,9 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:net_easy_music/model/drawer_manage.dart';
 import 'audioControl.dart';
 import 'my_drawer.dart';
-import 'package:flutter_visualizers/visualizer.dart';
-import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:net_easy_music/visualizer/ParticleCircleMusicVisualizer.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -21,12 +18,9 @@ class _MainScreenState extends State<MainScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   StreamSubscription _sessionIdsubscription;
   StreamSubscription _playStatesubscription;
-  int _sessionId;
   @override
   void initState() {
-    audioSessionListener();
     AudioInstance().requestRecordAudioPermission();
-    _playStateListener();
     super.initState();
   }
 
@@ -35,19 +29,6 @@ class _MainScreenState extends State<MainScreen> {
     _sessionIdsubscription.cancel();
     _playStatesubscription.cancel();
     super.dispose();
-  }
-
-  void _playStateListener() {
-    _playStatesubscription = AudioInstance()
-        .assetsAudioPlayer
-        .playerState
-        .listen((PlayerState state) {
-      if (state == PlayerState.stop || state == PlayerState.pause) {
-        setState(() {
-          _sessionId = null;
-        });
-      }
-    });
   }
 
   @override
@@ -64,27 +45,7 @@ class _MainScreenState extends State<MainScreen> {
             Column(
               children: <Widget>[
                 _buildTopBar(context),
-                Expanded(
-                    child: Container(
-                  child: _sessionId != null
-                      ? new Visualizer(
-                          builder: (BuildContext context, List<int> wave) {
-                            if (wave.length == 0) {
-                              return Container();
-                            }
-                            return new CustomPaint(
-                              painter: new ParticleCircleMusicVisualizer(
-                                waveData: wave,
-                                height:MediaQuery.of(context).size.height,
-                                width: MediaQuery.of(context).size.width,
-                              ),
-                              child: new Container(),
-                            );
-                          },
-                          id: _sessionId,
-                        )
-                      : Container(),
-                )),
+                Expanded(child: Container()),
                 AudioControl()
               ],
             ),
@@ -93,18 +54,6 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
     );
-  }
-
-  void audioSessionListener() {
-    _sessionIdsubscription =
-        AudioInstance().assetsAudioPlayer.audioSessionId.listen((sessionId) {
-      print('sessionId$sessionId');
-      if (sessionId != null) {
-        setState(() {
-          _sessionId = sessionId;
-        });
-      }
-    });
   }
 
   Widget _buildTopBar(BuildContext context) {

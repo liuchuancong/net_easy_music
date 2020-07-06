@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:net_easy_music/components/controlButton.dart';
+import 'package:net_easy_music/page/play_record/playRecord.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
 
 class AudioControl extends StatefulWidget {
@@ -146,7 +147,6 @@ class _AudioControlState extends State<AudioControl> {
   }
 
   Future<void> _playSong() async {
-    await AudioInstance().requestRecordAudioPermission();
     await AudioInstance().playNetWorkSong();
   }
 
@@ -184,8 +184,10 @@ class _AudioControlState extends State<AudioControl> {
             codePoint: 0xE9D4,
             onControlTaped: () => AudioInstance().next(),
           ),
+          // 播放记录
           ControlButton(
             codePoint: 0xE625,
+            onControlTaped: () => BottomPopupRecord().showCard(context: context),
           ) // icon-2
         ],
       ),
