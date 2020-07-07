@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import 'model/drawer_manage.dart';
+import 'model/playlist_manage.dart';
 import 'page/my_home_page/my_home_page.dart';
 
 void main() {
@@ -15,7 +18,11 @@ void main() {
       DeviceOrientation.portraitUp,
     ]);
   }
-  runApp(MyApp());
+
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => DrawerManage()),
+    ChangeNotifierProvider(create: (_) => PlaylistManage()),
+  ], child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -23,6 +30,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'NetEasyMusic',
       theme: ThemeData(
         primaryColor: Colors.black,

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:net_easy_music/components/controlButton.dart';
+import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/page/play_record/playRecord.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
+import 'package:provider/provider.dart';
 
 class AudioControl extends StatefulWidget {
   const AudioControl({Key key}) : super(key: key);
@@ -45,19 +47,20 @@ class _AudioControlState extends State<AudioControl> {
   }
 
   Widget _buildPlayBarAndSongInfo() {
+        final currentPlay = Provider.of<PlaylistManage>(context).currentPlay;
     return Column(
       children: <Widget>[
         Row(
           children: <Widget>[
             Text(
-              '下落不明',
+              currentPlay.name,
               style: songNameStyle,
             ),
             SizedBox(
               width: 20,
             ),
             Text(
-              '王巨星',
+              currentPlay.ar[0].name,
               style: authorNameStyle,
             ),
           ],
@@ -68,6 +71,7 @@ class _AudioControlState extends State<AudioControl> {
   }
 
   Widget _buildSeekBar(BuildContext context) {
+
     return Stack(
       children: <Widget>[
         Padding(
