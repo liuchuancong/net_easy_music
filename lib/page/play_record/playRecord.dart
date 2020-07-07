@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'card_data.dart';
 import 'carsoule.dart';
 
 class BottomPopupRecord {
@@ -10,8 +11,10 @@ class BottomPopupRecord {
         backgroundColor: Colors.transparent,
         builder: (BuildContext context) {
           return Container(
-            height: 400.0,
-            child: Carsoule()
+            height: MediaQuery.of(context).size.height * .7,
+            child: Carsoule(
+              selectedIndex: heroCards.length - 1,
+            )
           );
         });
   }

@@ -16,7 +16,7 @@ class _TopDotsIndicatorState extends State<TopDotsIndicator> {
         padding: EdgeInsets.symmetric(horizontal: 15.0),
         child: Center(
           child: new Container(
-            width: 60,
+            width: 40,
             height: 5.0,
             color: Colors.transparent,
             child: new ScrollerIndicator(
