@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:assets_audio_player/assets_audio_player.dart' as audioPlayer;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -89,13 +90,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         .get(apiList['RECOMMEND_PLAYLIST'], data: {'login': 0, '_p': 163});
     final _playlist = RecommendPlaylist.fromJson(response.data);
     if (_playlist.result == 100) {
-      getPlaylist(_playlist.data[0].id);
+      getPlaylist(_playlist);
     }
   }
 
-  getPlaylist(id) async {
-    final Response response = await HttpManager()
-        .get(apiList['PLAYLIST'], data: {'id': id, '_p': 163});
+  getPlaylist(RecommendPlaylist playlist) async {
+    final Response response = await HttpManager().get(apiList['PLAYLIST'],
+        data: {'id': playlist.data[0].id, '_p': playlist.data[0].platform});
     final _playlist = Playlist.fromJson(response.data);
     if (_playlist.result == 100) {
       context.read<PlaylistManage>().setPlaylist(_playlist.data.list);
@@ -103,12 +104,66 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
   }
 
-  getAudioPlaylist(List<DataList> list) async {    
-    String idString = list[0].id.toString();
-    final Response response = await HttpManager().get(apiList['BATCH_URL'],
-        data: {'id': idString, '_p': 163, '_t': Duration().inMicroseconds});
-    final String songsurl = jsonEncode(response.data['data']);
-    AudioInstance().initPlaylist(list, songsurl);
+  getAudioPlaylist(List<DataList> list) async {
+    String platform = '163';
+    int baseLoop = 50;
+    List<int> ids = [];
+    list.forEach((song) {
+      ids.add(song.id);
+    });
+    print(list[2].aId);
+    audioPlayer.Playlist _songsList = new audioPlayer.Playlist();
+    int loopCount = (list.length / baseLoop).ceil();
+    for (var i = 0; i < loopCount; i++) {
+      String idString;
+      int loopEnd = 0;
+      if (i == loopCount - 1) {
+        idString = ids.getRange(baseLoop * i, list.length).join(',');
+        loopEnd = list.length;
+      } else {
+        idString = ids.getRange(baseLoop * i, (1 + i) * baseLoop).join(',');
+        loopEnd = (1 + i) * baseLoop;
+      }
+      final Response response = await HttpManager().get(apiList['BATCH_URL'],
+          data: {
+            'id': idString,
+            '_p': platform,
+            '_t': Duration().inMicroseconds
+          });
+      final String songsurl = jsonEncode(response.data['data']);
+
+      list.getRange(baseLoop * i, loopEnd).forEach((song) {
+        String url = jsonDecode(songsurl)[song.id.toString()];
+        if (url != null) {
+          audioPlayer.Audio _audio = _getAudio(song, url);
+          _songsList.add(_audio);
+        }
+      });
+    }
+    await AudioInstance().initPlaylist(_songsList);
+  }
+
+  audioPlayer.Audio _getAudio(song, url) {
+    String _artist;
+    song.ar.forEach((ar) {
+      if (_artist == null) {
+        _artist = ar.name;
+      } else {
+        _artist = _artist + ' ' + ar.name;
+      }
+    });
+    audioPlayer.Audio audio = audioPlayer.Audio.network(
+      url,
+      metas: audioPlayer.Metas(
+        title: song.name,
+        artist: _artist,
+        album: song.al.name,
+        image: audioPlayer.MetasImage.network(
+          song.al.picUrl + '?param=1440y1440',
+        ), //can be MetasImage.network
+      ),
+    );
+    return audio;
   }
 
   Widget _buildTopBar(BuildContext context) {
@@ -294,7 +349,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                               child: _currentPlay.al.picUrl != null
                                   ? new CachedNetworkImage(
                                       imageUrl: _currentPlay.al.picUrl +
-                                          '?param=300y300',
+                                          '?param=1440y1440',
                                       fit: BoxFit.cover,
                                       errorWidget: (context, url, error) =>
                                           new Image.asset(

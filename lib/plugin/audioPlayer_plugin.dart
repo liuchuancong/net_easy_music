@@ -1,16 +1,12 @@
-import 'dart:convert';
-
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:net_easy_music/json/playlist.dart' as playlist;
 import 'package:permission_handler/permission_handler.dart';
 
 class AudioInstance {
   // 单例公开访问点
   factory AudioInstance() => _getInstance();
-  Playlist _playlist;
   bool get isPlay => assetsAudioPlayer.isPlaying.value;
-  Playlist get playList => _playlist;
+  Playlist get playList => assetsAudioPlayer.playlist;
   // 静态私有成员，没有初始化
   static AudioInstance _instance;
   static AudioInstance get instance => _getInstance();
@@ -26,10 +22,6 @@ class AudioInstance {
       _instance = AudioInstance._internal();
     }
     return _instance;
-  }
-
-  setPlaylist(Playlist playlist) {
-    this._playlist = playlist;
   }
 
   static Audio _audio;
@@ -114,39 +106,12 @@ class AudioInstance {
     }
   }
 
-  Future<void> initPlaylist(
-      List<playlist.DataList> list, String songsurl) async {
+  Future<void> initPlaylist(Playlist playlist) async {
     if (isPlay) {
       stop();
     }
-    Playlist _songsList = new Playlist();
-    list.forEach((song) {
-      String _artist;
-      song.ar.forEach((ar) {
-        if (_artist == null) {
-          _artist = ar.name;
-        } else {
-          _artist = _artist + ' ' + ar.name;
-        }
-      });
-      String url = jsonDecode(songsurl)[song.id.toString()];
-      if (url != null) {
-        Audio audio = Audio.network(
-          url,
-          metas: Metas(
-            title: song.name,
-            artist: _artist,
-            album: song.al.name,
-            image:
-                MetasImage.network(song.al.picUrl), //can be MetasImage.network
-          ),
-        );
-        _songsList.add(audio);
-      }
-    });
-    setPlaylist(_songsList);
     try {
-      await assetsAudioPlayer.open(_playlist,
+      await assetsAudioPlayer.open(playlist,
           showNotification: true, autoStart: false);
     } catch (t) {
       //mp3 unreachable
