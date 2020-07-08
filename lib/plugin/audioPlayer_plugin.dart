@@ -1,11 +1,16 @@
+import 'dart:convert';
+
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:net_easy_music/json/playlist.dart' as playlist;
 import 'package:permission_handler/permission_handler.dart';
+
 class AudioInstance {
   // 单例公开访问点
   factory AudioInstance() => _getInstance();
+  Playlist _playlist;
   bool get isPlay => assetsAudioPlayer.isPlaying.value;
-  Playlist get playList => assetsAudioPlayer.playlist;
+  Playlist get playList => _playlist;
   // 静态私有成员，没有初始化
   static AudioInstance _instance;
   static AudioInstance get instance => _getInstance();
@@ -23,27 +28,36 @@ class AudioInstance {
     return _instance;
   }
 
+  setPlaylist(Playlist playlist) {
+    this._playlist = playlist;
+  }
+
   static Audio _audio;
-    // 申请存储权限
+  // 申请存储权限
   Future<void> requestStoragePermission() async {
     var status = await Permission.storage.status;
     if (status.isUndetermined) {
       await Permission.storage.request();
     }
   }
-      // 申请录音权限
+
+  // 申请录音权限
   Future<void> requestRecordAudioPermission() async {
     var status = await Permission.microphone.status;
     if (status.isUndetermined) {
       await Permission.microphone.request();
     }
   }
+
   //jsut test
   Future<void> playNetWorkSong() async {
-     final String songUrl1 = 'http://up_mp4.t57.cn/2018/1/03m/13/396131229550.m4a';
-     final String songUrl2 = 'http://up_mp4.t57.cn/2018/1/03m/13/396131226156.m4a';
-     final String songUrl3 = 'http://up_mp4.t57.cn/2018/1/03m/13/396131210487.m4a';
-    Playlist  _playlist = new Playlist();
+    final String songUrl1 =
+        'http://up_mp4.t57.cn/2018/1/03m/13/396131229550.m4a';
+    final String songUrl2 =
+        'http://up_mp4.t57.cn/2018/1/03m/13/396131226156.m4a';
+    final String songUrl3 =
+        'http://up_mp4.t57.cn/2018/1/03m/13/396131210487.m4a';
+    Playlist _playlist = new Playlist();
     _playlist.add(new Audio.network(songUrl1));
     _playlist.add(new Audio.network(songUrl2));
     _playlist.add(new Audio.network(songUrl3));
@@ -100,12 +114,40 @@ class AudioInstance {
     }
   }
 
-  Future<void> initPlaylist(Playlist playlist) async {
+  Future<void> initPlaylist(
+      List<playlist.DataList> list, String songsurl) async {
     if (isPlay) {
       stop();
     }
+    Playlist _songsList = new Playlist();
+    list.forEach((song) {
+      String _artist;
+      song.ar.forEach((ar) {
+        if (_artist == null) {
+          _artist = ar.name;
+        } else {
+          _artist = _artist + ' ' + ar.name;
+        }
+      });
+      String url = jsonDecode(songsurl)[song.id.toString()];
+      if (url != null) {
+        Audio audio = Audio.network(
+          url,
+          metas: Metas(
+            title: song.name,
+            artist: _artist,
+            album: song.al.name,
+            image:
+                MetasImage.network(song.al.picUrl), //can be MetasImage.network
+          ),
+        );
+        _songsList.add(audio);
+      }
+    });
+    setPlaylist(_songsList);
     try {
-      await assetsAudioPlayer.open(playlist, showNotification: true);
+      await assetsAudioPlayer.open(_playlist,
+          showNotification: true, autoStart: false);
     } catch (t) {
       //mp3 unreachable
     }

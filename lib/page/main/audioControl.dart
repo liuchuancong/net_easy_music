@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:net_easy_music/components/controlButton.dart';
@@ -5,6 +7,8 @@ import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/page/play_record/playRecord.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
 import 'package:provider/provider.dart';
+import '../../extension/duration.dart';
+import 'package:assets_audio_player/assets_audio_player.dart' as audioPlayer;
 
 class AudioControl extends StatefulWidget {
   const AudioControl({Key key}) : super(key: key);
@@ -13,16 +17,68 @@ class AudioControl extends StatefulWidget {
 }
 
 class _AudioControlState extends State<AudioControl> {
-  String totalDuration = '00:00';
+  String _currentPosition = "00:00";
+  String _totalDuration = '00:00';
+  double _totalSeconds = 238.0;
+  double _currentSeconds = 0.0;
+  StreamSubscription _onReadyToPlaySubscription;
+  StreamSubscription _currentPositionSubscription;
+  StreamSubscription _currentPlaySubscription;
   int playIndex = 0;
   @override
   void initState() {
+    readyPlaySubScription();
+    currentPositionSubScription();
+    currentPlaySubScription();
     super.initState();
   }
 
   @override
   void dispose() {
+    _onReadyToPlaySubscription.cancel();
+    _currentPositionSubscription.cancel();
+    _currentPlaySubscription.cancel();
     super.dispose();
+  }
+
+  readyPlaySubScription() {
+    _onReadyToPlaySubscription =
+        AudioInstance().assetsAudioPlayer.onReadyToPlay.listen((event) {
+      if (event != null && event.duration != null) {
+        setState(() {
+          _currentPosition = "${Duration().mmSSFormat}";
+          _totalDuration = event.duration.mmSSFormat;
+          _totalSeconds = event.duration.inSeconds.toDouble();
+        });
+      }
+    });
+  }
+
+  currentPositionSubScription() {
+    _currentPositionSubscription =
+        AudioInstance().assetsAudioPlayer.currentPosition.listen((event) {
+      if (event != null) {
+        setState(() {
+          _currentPosition = "${event.mmSSFormat}";
+          _currentSeconds = event.inSeconds.toDouble();
+        });
+      }
+    });
+  }
+
+  currentPlaySubScription() {
+    _currentPlaySubscription = AudioInstance()
+        .assetsAudioPlayer
+        .realtimePlayingInfos
+        .listen((audioPlayer.RealtimePlayingInfos event) {
+      if (event.current != null && event.current.index != null) {
+        if (playIndex != event.current.index) {
+          playIndex = event.current.index;
+          context.read<PlaylistManage>().setCurrentPlay(
+              context.read<PlaylistManage>().playlist[playIndex]);
+        }
+      }
+    });
   }
 
   @override
@@ -47,7 +103,7 @@ class _AudioControlState extends State<AudioControl> {
   }
 
   Widget _buildPlayBarAndSongInfo() {
-        final currentPlay = Provider.of<PlaylistManage>(context).currentPlay;
+    final currentPlay = Provider.of<PlaylistManage>(context).currentPlay;
     return Column(
       children: <Widget>[
         Row(
@@ -57,7 +113,7 @@ class _AudioControlState extends State<AudioControl> {
               style: songNameStyle,
             ),
             SizedBox(
-              width: 20,
+              width: 10,
             ),
             Text(
               currentPlay.ar[0].name,
@@ -71,7 +127,7 @@ class _AudioControlState extends State<AudioControl> {
   }
 
   Widget _buildSeekBar(BuildContext context) {
-
+    var theme = Theme.of(context).primaryTextTheme;
     return Stack(
       children: <Widget>[
         Padding(
@@ -89,9 +145,9 @@ class _AudioControlState extends State<AudioControl> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Text(totalDuration, style: songTimeStyle),
+                          Text(_currentPosition, style: songTimeStyle),
                           Text('/', style: songTimeStyle),
-                          Text(totalDuration, style: songTimeStyle),
+                          Text(_totalDuration, style: songTimeStyle),
                         ],
                       )),
                 ],
@@ -102,19 +158,23 @@ class _AudioControlState extends State<AudioControl> {
               NeumorphicSlider(
                 height: 5.0,
                 min: 0.0,
-                max: 100.0,
-                value: 80.0,
+                max: _totalSeconds,
+                value: _currentSeconds,
                 style: SliderStyle(
-                  disableDepth: true,
-                  accent: Color(0xff409eff),
-                  variant: Color(0xff409eff),
-                ),
+                    disableDepth: true,
+                    thumbBorder: NeumorphicBorder(
+                      color: theme.bodyText2.color.withOpacity(0.75),
+                      width: 4.0
+                    ),
+                    accent: theme.bodyText2.color.withOpacity(0.75),
+                    variant: theme.caption.color.withOpacity(0.3)),
                 onChanged: (value) {
                   int flooredValue = value.floor();
                   int hour = (flooredValue / 3600).floor();
                   int min = (flooredValue / 60).floor();
                   int sec = (flooredValue % 60).floor();
-                  print('$hour$min$sec');
+                  AudioInstance()
+                      .seek(Duration(minutes: min, seconds: sec, hours: hour));
                 },
               )
             ],
@@ -151,7 +211,7 @@ class _AudioControlState extends State<AudioControl> {
   }
 
   Future<void> _playSong() async {
-    await AudioInstance().playNetWorkSong();
+    await AudioInstance().play();
   }
 
   Widget _buildPlayControl() {
@@ -168,7 +228,6 @@ class _AudioControlState extends State<AudioControl> {
             onControlTaped: () => AudioInstance().prev(),
           ),
           // 播放按键
-
           StreamBuilder(
               stream: AudioInstance().assetsAudioPlayer.isPlaying,
               builder: (context, snapshot) {
@@ -178,7 +237,7 @@ class _AudioControlState extends State<AudioControl> {
                 }
                 if (isPlaying) {
                   return ControlButton(
-                      codePoint:0xE696,
+                      codePoint: 0xE696,
                       onControlTaped: () => AudioInstance().pause());
                 }
                 return ControlButton(
@@ -191,7 +250,8 @@ class _AudioControlState extends State<AudioControl> {
           // 播放记录
           ControlButton(
             codePoint: 0xE625,
-            onControlTaped: () => BottomPopupRecord().showCard(context: context),
+            onControlTaped: () =>
+                BottomPopupRecord().showCard(context: context),
           ) // icon-2
         ],
       ),
