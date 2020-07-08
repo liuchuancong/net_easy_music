@@ -4,7 +4,7 @@ class HttpManager {
   //一个人工智能回答的免费API
   final String baseUrl = 'http://y.jsososo.com';
   final int connectTimeOut = 5000;
-  final int receiveTimeOut = 3000;
+  final int receiveTimeOut = 5000;
 
   //单例模式
   static HttpManager _instance;

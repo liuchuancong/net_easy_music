@@ -326,6 +326,9 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
       }
       dy += painter.height;
       if (lyricTranslation !=null && lyricTranslation.size != 0) {
+        if(line + 1>lyricTranslation.size){
+          return;
+        }
         if (lyric[line].duration == lyricTranslation[line].duration) {
           TextPainter tarnslatePainter = lyricTranslationPainters[line];
           if (line == currentLine) {

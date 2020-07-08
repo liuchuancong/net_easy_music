@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:net_easy_music/json/playlist.dart';
 import 'package:net_easy_music/model/playlist_manage.dart';
+import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
 import 'package:provider/provider.dart';
 
 class CurrentRecord extends StatefulWidget {
@@ -90,26 +91,28 @@ class _CurrentRecordState extends State<CurrentRecord> {
       child: new ListTile(
         title: RichText(
             overflow: TextOverflow.ellipsis,
-            text: TextSpan(
-                children: <TextSpan>[
-                  TextSpan(
-                      text: music.name,
-                      style: musicTextStyle.copyWith(
-                          color: currentPlay.id == music.id
-                              ? Colors.red
-                              : Colors.black)),
-                  TextSpan(
-                      text: ' - ${music.ar[0].name}',
-                      style: authorTextStyle.copyWith(
-                          color: currentPlay.id == music.id
-                              ? Colors.red
-                              : Colors.black54)),
-                ]),
+            text: TextSpan(children: <TextSpan>[
+              TextSpan(
+                  text: music.name,
+                  style: musicTextStyle.copyWith(
+                      color: currentPlay.id == music.id
+                          ? Colors.red
+                          : Colors.black)),
+              TextSpan(
+                  text: ' - ${music.ar[0].name}',
+                  style: authorTextStyle.copyWith(
+                      color: currentPlay.id == music.id
+                          ? Colors.red
+                          : Colors.black54)),
+            ]),
             textAlign: TextAlign.left),
         onTap: () {
           if (currentPlay.id != music.id) {
             Provider.of<PlaylistManage>(context, listen: false)
                 .setCurrentPlay(music);
+            int idx =
+                Provider.of<PlaylistManage>(context, listen: false).playlist.indexOf(music);
+            AudioInstance().playlistPlayAtIndex(idx);
           }
         },
       ),

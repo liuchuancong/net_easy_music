@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 class NavBar extends StatelessWidget {
   final int codePoint;
   final String title;
-  const NavBar({Key key, @required this.codePoint, @required this.title})
+  final Function onTap;
+  const NavBar(
+      {Key key, @required this.codePoint, @required this.title, this.onTap})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -20,6 +22,7 @@ class NavBar extends StatelessWidget {
         ),
         onTap: () {
           Navigator.of(context).pop();
+          onTap();
         },
       ),
     );

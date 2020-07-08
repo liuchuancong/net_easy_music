@@ -28,10 +28,10 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   StreamSubscription _sessionIdsubscription;
-   StreamSubscription _currentPlaySubscription;
+  StreamSubscription _currentPlaySubscription;
   bool _showLyric = false;
   AnimationController _albumController;
-  LyricContent lyricContent,lyricTranslateContent;
+  LyricContent lyricContent, lyricTranslateContent;
   double _currentSeconds = 0.0;
   @override
   void initState() {
@@ -77,9 +77,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
-  currentPlaySong(){
-    _currentPlaySubscription = AudioInstance().assetsAudioPlayer.current.listen((playingAudio) { 
-          _getSonglyric();
+  currentPlaySong() {
+    _currentPlaySubscription =
+        AudioInstance().assetsAudioPlayer.current.listen((playingAudio) {
+      _getSonglyric();
     });
   }
 
@@ -102,12 +103,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
   }
 
-  getAudioPlaylist(List<DataList> list) async {
-    List<int> ids = [];
-    list.forEach((song) {
-      ids.add(song.id);
-    });
-    String idString = ids.join(',');
+  getAudioPlaylist(List<DataList> list) async {    
+    String idString = list[0].id.toString();
     final Response response = await HttpManager().get(apiList['BATCH_URL'],
         data: {'id': idString, '_p': 163, '_t': Duration().inMicroseconds});
     final String songsurl = jsonEncode(response.data['data']);
@@ -232,7 +229,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: StreamBuilder(
                 stream: AudioInstance().assetsAudioPlayer.currentPosition,
-                builder: (context,AsyncSnapshot<Duration> snapshot) {
+                builder: (context, AsyncSnapshot<Duration> snapshot) {
                   if (snapshot.data == null) {
                     _currentSeconds = 0;
                   } else {
@@ -290,8 +287,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                           height: expandedSize * 0.8,
                           child: new Center(
                               child: Container(
-                            width: 200,
-                            height: 200,
+                            width: expandedSize * 0.65,
+                            height: expandedSize * 0.65,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(200),
                               child: _currentPlay.al.picUrl != null
@@ -336,11 +333,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     lyricTranslateContent = null;
     try {
       print(context.read<PlaylistManage>().currentPlay.id);
-      final Response response = await HttpManager().get(apiList['LYRIC'],
-          data: {'id': context.read<PlaylistManage>().currentPlay.id,'_p': 163,'_t': Duration().inMicroseconds.toString()});
+      final Response response =
+          await HttpManager().get(apiList['LYRIC'], data: {
+        'id': context.read<PlaylistManage>().currentPlay.id,
+        '_p': 163,
+        '_t': Duration().inMicroseconds.toString()
+      });
       Map songsMap = json.decode(response.toString());
       if (songsMap['result'] == 100) {
-        print(songsMap['data']['lyric']);
         lyricContent = LyricContent.from(songsMap['data']['lyric']);
         lyricTranslateContent = LyricContent.from(songsMap['data']['trans']);
         setState(() {});

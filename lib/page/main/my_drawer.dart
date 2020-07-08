@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:net_easy_music/common/common.dart';
 import 'package:net_easy_music/page/main/user_nav_bar.dart';
+import 'package:net_easy_music/page/search/search_page.dart';
 import 'nav_bar.dart';
 
 class MyDrawer extends StatefulWidget {
@@ -51,6 +53,9 @@ class _MyDrawerState extends State<MyDrawer> {
           NavBar(
             codePoint: 0xE606,
             title: '寻觅',
+            onTap: () {
+              openRoute(page: new SearchPage(), context: context);
+            },
           ),
           NavBar(
             codePoint: 0xE61A,
