@@ -39,6 +39,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     AudioInstance().requestRecordAudioPermission();
     getRecommendPlaylist();
     currentPlaySong();
+    _handlePlayerErr();
     _albumController =
         new AnimationController(vsync: this, duration: Duration(seconds: 60));
     super.initState();
@@ -76,94 +77,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         ),
       ),
     );
-  }
-
-  currentPlaySong() {
-    _currentPlaySubscription =
-        AudioInstance().assetsAudioPlayer.current.listen((playingAudio) {
-      _getSonglyric();
-    });
-  }
-
-  getRecommendPlaylist() async {
-    final Response response = await HttpManager()
-        .get(apiList['RECOMMEND_PLAYLIST'], data: {'login': 0, '_p': 163});
-    final _playlist = RecommendPlaylist.fromJson(response.data);
-    if (_playlist.result == 100) {
-      getPlaylist(_playlist);
-    }
-  }
-
-  getPlaylist(RecommendPlaylist playlist) async {
-    final Response response = await HttpManager().get(apiList['PLAYLIST'],
-        data: {'id': playlist.data[0].id, '_p': playlist.data[0].platform});
-    final _playlist = Playlist.fromJson(response.data);
-    if (_playlist.result == 100) {
-      context.read<PlaylistManage>().setPlaylist(_playlist.data.list);
-      getAudioPlaylist(_playlist.data.list);
-    }
-  }
-
-  getAudioPlaylist(List<DataList> list) async {
-    String platform = '163';
-    int baseLoop = 50;
-    List<int> ids = [];
-    list.forEach((song) {
-      ids.add(song.id);
-    });
-    print(list[2].aId);
-    audioPlayer.Playlist _songsList = new audioPlayer.Playlist();
-    int loopCount = (list.length / baseLoop).ceil();
-    for (var i = 0; i < loopCount; i++) {
-      String idString;
-      int loopEnd = 0;
-      if (i == loopCount - 1) {
-        idString = ids.getRange(baseLoop * i, list.length).join(',');
-        loopEnd = list.length;
-      } else {
-        idString = ids.getRange(baseLoop * i, (1 + i) * baseLoop).join(',');
-        loopEnd = (1 + i) * baseLoop;
-      }
-      final Response response = await HttpManager().get(apiList['BATCH_URL'],
-          data: {
-            'id': idString,
-            '_p': platform,
-            '_t': Duration().inMicroseconds
-          });
-      final String songsurl = jsonEncode(response.data['data']);
-
-      list.getRange(baseLoop * i, loopEnd).forEach((song) {
-        String url = jsonDecode(songsurl)[song.id.toString()];
-        if (url != null) {
-          audioPlayer.Audio _audio = _getAudio(song, url);
-          _songsList.add(_audio);
-        }
-      });
-    }
-    await AudioInstance().initPlaylist(_songsList);
-  }
-
-  audioPlayer.Audio _getAudio(song, url) {
-    String _artist;
-    song.ar.forEach((ar) {
-      if (_artist == null) {
-        _artist = ar.name;
-      } else {
-        _artist = _artist + ' ' + ar.name;
-      }
-    });
-    audioPlayer.Audio audio = audioPlayer.Audio.network(
-      url,
-      metas: audioPlayer.Metas(
-        title: song.name,
-        artist: _artist,
-        album: song.al.name,
-        image: audioPlayer.MetasImage.network(
-          song.al.picUrl + '?param=1440y1440',
-        ), //can be MetasImage.network
-      ),
-    );
-    return audio;
   }
 
   Widget _buildTopBar(BuildContext context) {
@@ -225,11 +138,28 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         .textTheme
         .bodyText2
         .copyWith(height: 2, fontSize: 16, color: Colors.white);
+    print('```````````````````````');
     if (lyricContent != null && lyricContent.size > 0) {
       return LayoutBuilder(builder: (context, constraints) {
         final normalStyle = style.copyWith(color: style.color.withOpacity(0.7));
         //歌词顶部与尾部半透明显示
-        return shaderMaskDraw(constraints, style, normalStyle);
+        return ShaderMask(
+          shaderCallback: (rect) {
+            return ui.Gradient.linear(Offset(rect.width / 2, 0),
+                Offset(rect.width / 2, constraints.maxHeight), [
+              const Color(0x00FFFFFF),
+              style.color,
+              style.color,
+              const Color(0x00FFFFFF),
+            ], [
+              0.0,
+              0.15,
+              0.85,
+              1
+            ]);
+          },
+          child: _songILyricAnimate(normalStyle, style, constraints),
+        );
       });
     } else {
       return GestureDetector(
@@ -241,27 +171,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         ),
       );
     }
-  }
-
-  ShaderMask shaderMaskDraw(
-      BoxConstraints constraints, TextStyle style, TextStyle normalStyle) {
-    return ShaderMask(
-      shaderCallback: (rect) {
-        return ui.Gradient.linear(Offset(rect.width / 2, 0),
-            Offset(rect.width / 2, constraints.maxHeight), [
-          const Color(0x00FFFFFF),
-          style.color,
-          style.color,
-          const Color(0x00FFFFFF),
-        ], [
-          0.0,
-          0.15,
-          0.85,
-          1
-        ]);
-      },
-      child: _songILyricAnimate(normalStyle, style, constraints),
-    );
   }
 
   StreamBuilder<bool> _songILyricAnimate(
@@ -383,14 +292,110 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     });
   }
 
-  void _getSonglyric() async {
+  currentPlaySong() {
+    _currentPlaySubscription =
+        AudioInstance().assetsAudioPlayer.current.listen((playingAudio) {
+      _getSonglyric(playingAudio.index);
+    });
+  }
+
+  getRecommendPlaylist() async {
+    final Response response = await HttpManager()
+        .get(apiList['RECOMMEND_PLAYLIST'], data: {'login': 0, '_p': 163});
+    final _playlist = RecommendPlaylist.fromJson(response.data);
+    if (_playlist.result == 100) {
+      getPlaylist(_playlist);
+    }
+  }
+
+  getPlaylist(RecommendPlaylist playlist) async {
+    final Response response = await HttpManager().get(apiList['PLAYLIST'],
+        data: {'id': playlist.data[0].id, '_p': playlist.data[0].platform});
+    final _playlist = Playlist.fromJson(response.data);
+    if (_playlist.result == 100) {
+      context.read<PlaylistManage>().setPlaylist(_playlist.data.list);
+      getAudioPlaylist(_playlist.data.list);
+    }
+  }
+
+  getAudioPlaylist(List<DataList> list) async {
+    String platform = '163';
+    int baseLoop = 50;
+    List<int> ids = [];
+    List<DataList> unFoundList = [];
+    list.forEach((song) {
+      ids.add(song.id);
+    });
+    print(list[2].aId);
+    audioPlayer.Playlist _songsList = new audioPlayer.Playlist();
+    int loopCount = (list.length / baseLoop).ceil();
+    for (var i = 0; i < loopCount; i++) {
+      String idString;
+      int loopEnd = 0;
+      if (i == loopCount - 1) {
+        idString = ids.getRange(baseLoop * i, list.length).join(',');
+        loopEnd = list.length;
+      } else {
+        idString = ids.getRange(baseLoop * i, (1 + i) * baseLoop).join(',');
+        loopEnd = (1 + i) * baseLoop;
+      }
+      final Response response = await HttpManager().get(apiList['BATCH_URL'],
+          data: {
+            'id': idString,
+            '_p': platform,
+            '_t': Duration().inMicroseconds
+          });
+      final String songsurl = jsonEncode(response.data['data']);
+
+      list.getRange(baseLoop * i, loopEnd).forEach((song) {
+        String url = jsonDecode(songsurl)[song.id.toString()];
+        if (url != null) {
+          audioPlayer.Audio _audio = _getAudio(song, url);
+          _songsList.add(_audio);
+        } else {
+          print(song.id.toString());
+          print(song.name.toString());
+          unFoundList.add(song);
+        }
+      });
+    }
+    for (var i = 0; i < unFoundList.length; i++) {
+      context.read<PlaylistManage>().playlist.remove(unFoundList[i]);
+    }
+
+    await AudioInstance().initPlaylist(_songsList);
+  }
+
+  audioPlayer.Audio _getAudio(song, url) {
+    String _artist;
+    song.ar.forEach((ar) {
+      if (_artist == null) {
+        _artist = ar.name;
+      } else {
+        _artist = _artist + ' ' + ar.name;
+      }
+    });
+    audioPlayer.Audio audio = audioPlayer.Audio.network(
+      url,
+      metas: audioPlayer.Metas(
+        title: song.name,
+        artist: _artist,
+        album: song.al.name,
+        image: audioPlayer.MetasImage.network(
+          song.al.picUrl + '?param=1440y1440',
+        ), //can be MetasImage.network
+      ),
+    );
+    return audio;
+  }
+
+  Future<void> _getSonglyric(int index) async {
     lyricContent = null;
     lyricTranslateContent = null;
     try {
-      print(context.read<PlaylistManage>().currentPlay.id);
       final Response response =
           await HttpManager().get(apiList['LYRIC'], data: {
-        'id': context.read<PlaylistManage>().currentPlay.id,
+        'id': context.read<PlaylistManage>().playlist[index].id,
         '_p': 163,
         '_t': Duration().inMicroseconds.toString()
       });
@@ -398,13 +403,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       if (songsMap['result'] == 100) {
         lyricContent = LyricContent.from(songsMap['data']['lyric']);
         lyricTranslateContent = LyricContent.from(songsMap['data']['trans']);
-        setState(() {});
       } else {
-        print('error');
+        print(songsMap['result']);
       }
     } catch (e) {
-      print('error');
+      print(e.toString());
     }
+    setState(() {});
   }
 
   _onDrawerOpenOrClose(state) {
@@ -417,5 +422,37 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         Provider.of<DrawerManage>(context, listen: false).closeDrawer();
       });
     }
+  }
+
+  Future<String> getSongNewPath() async {
+    String path;
+    final Response response = await HttpManager().get(apiList['SONG_URL'],
+        data: {'id': context.read<PlaylistManage>().currentPlay.id});
+    Map songsMap = json.decode(response.toString());
+    if (songsMap['code'] == 200) {
+      path = songsMap['data'][0]['url'];
+    } else {
+      print('error');
+    }
+    return path;
+  }
+
+  _handlePlayerErr() {
+    AudioInstance().assetsAudioPlayer.onErrorDo = (handler) async {
+      print(handler.error.errorType);
+      print(handler.error.message);
+      // handler.player.open(
+      //   handler.playlist.copyWith(startIndex: handler.playlistIndex),
+      //   seek: handler.currentPosition,
+      // );
+      final path = await getSongNewPath();
+      print(path);
+      if (path != null) {
+        handler.player.playlist.replaceAt(
+            handler.playlistIndex,
+            (oldAudio) =>
+                new audioPlayer.Audio.network(path, metas: oldAudio.metas));
+      }
+    };
   }
 }

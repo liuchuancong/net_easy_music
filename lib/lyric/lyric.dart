@@ -296,7 +296,6 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
             text: TextSpan(style: style, text: lyricTranslation[i].line),
             textAlign: textAlign);
         painter.textDirection = TextDirection.ltr;
-//      painter.layout();//layout first, to get the height
         lyricTranslationPainters.add(painter);
       }
     }
@@ -314,9 +313,16 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
     _layoutPainterList(size);
+    double dy;
     canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
-
-    double dy = offsetScroll + size.height / 2 - lyricPainters[0].height / 2;
+    if (lyricTranslation != null && lyricTranslation.size != 0) {
+      dy = offsetScroll +
+          size.height / 2 -
+          lyricPainters[0].height / 2 -
+          lyricTranslationPainters[0].height / 2;
+    } else {
+      dy = offsetScroll + size.height / 2 - lyricPainters[0].height / 2;
+    }
     for (int line = 0; line < lyric.size; line++) {
       TextPainter painter = lyricPainters[line];
       if (line == currentLine) {
@@ -325,18 +331,17 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
         drawLine(canvas, painter, dy, size);
       }
       dy += painter.height;
-      if (lyricTranslation !=null && lyricTranslation.size != 0) {
-        if(line + 1>lyricTranslation.size){
-          return;
-        }
-        if (lyric[line].duration == lyricTranslation[line].duration) {
-          TextPainter tarnslatePainter = lyricTranslationPainters[line];
-          if (line == currentLine) {
-            _paintCurrentLine(canvas, tarnslatePainter, dy, size);
-          } else {
-            drawLine(canvas, tarnslatePainter, dy, size);
+      if (lyricTranslation != null && lyricTranslation.size != 0) {
+        for (var i = 0; i < lyricTranslation.size; i++) {
+          if (lyric[line].timeStamp == lyricTranslation[i].timeStamp) {
+            TextPainter tarnslatePainter = lyricTranslationPainters[i];
+            if (currentLine == line) {
+              _paintCurrentLine(canvas, tarnslatePainter, dy, size);
+            } else {
+              drawLine(canvas, tarnslatePainter, dy, size);
+            }
+            dy += tarnslatePainter.height;
           }
-          dy += tarnslatePainter.height;
         }
       }
     }
@@ -428,7 +433,7 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
       p.layout(maxWidth: size.width);
       _height += p.height;
     });
-    if (lyricTranslation !=null && lyricTranslation.size != 0) {
+    if (lyricTranslation != null && lyricTranslation.size != 0) {
       lyricTranslationPainters.forEach((p) {
         p.layout(maxWidth: size.width);
         _height += p.height;
@@ -445,11 +450,18 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
     double height = -lyricPainters[0].height / 2;
     for (int i = 0; i < lyricPainters.length; i++) {
       if (i == destination) {
-        height += lyricPainters[i].height / 2;
+        if (lyricTranslation != null && lyricTranslation.size != 0) {
+          height += lyricPainters[i].height / 2;
+          height += lyricTranslationPainters[i].height / 2;
+        } else {
+          height += lyricPainters[i].height / 2;
+        }
+
         break;
       }
-      if (lyricTranslation !=null && lyricTranslation.size != 0) {
-        height += lyricPainters[i].height * 2;
+      if (lyricTranslation != null && lyricTranslation.size != 0) {
+        height += lyricPainters[i].height;
+        height += lyricTranslationPainters[i].height;
       } else {
         height += lyricPainters[i].height;
       }

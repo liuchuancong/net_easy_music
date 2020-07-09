@@ -25,7 +25,7 @@ class BlurBackground extends StatelessWidget {
           gaplessPlayback: true,
         ),
         BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaY: 50, sigmaX: 60),
+          filter: ui.ImageFilter.blur(sigmaY: 50, sigmaX: 50),
           child: Container(
             decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -44,11 +44,3 @@ class BlurBackground extends StatelessWidget {
     );
   }
 }
-
-// BoxDecoration(
-//               gradient: new LinearGradient(begin: Alignment.topCenter, colors: [
-//             HSLColor.fromAHSL(.53, 0, 0, 1).toColor(),
-//             HSLColor.fromAHSL(.4, 0, 0, 1).toColor(),
-//             HSLColor.fromAHSL(.0, 0, 0, 1).toColor(),
-//             HSLColor.fromAHSL(.0, 0, 0, 1).toColor()
-//           ])),
