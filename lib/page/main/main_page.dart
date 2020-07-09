@@ -374,7 +374,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       print(findByQQ);
       final Response response = await HttpManager()
           .post(apiList['QQ_SONG_FINDS'], params: {'data': findByQQ});
-      print(response.data);
+      print(response.request.headers);
     }
 
     await AudioInstance().initPlaylist(_songsList);
