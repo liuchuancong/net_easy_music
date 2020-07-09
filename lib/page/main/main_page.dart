@@ -361,19 +361,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     int unFoundListLoopCount = (unFoundList.length / baseLoop).ceil();
     for (var i = 0; i < unFoundListLoopCount; i++) {
       Map findByQQ = {};
-      int loopEnd = 0;
       if (i == loopCount - 1) {
         unFoundList.getRange(baseLoop * i, unFoundList.length).forEach((song) {
           findByQQ['$platform' + '_' + '${song.id.toString()}'] =
               '${song.name}' + ' ' + '${song.ar.map((a) => a.name).join(' ')}';
         });
-        loopEnd = list.length;
       } else {
         unFoundList.getRange(baseLoop * i, (1 + i) * baseLoop).forEach((song) {
           findByQQ['$platform' + '_' + '${song.id.toString()}'] =
               '${song.name}' + ' ' + '${song.ar.map((a) => a.name).join(' ')}';
         });
-        loopEnd = (1 + i) * baseLoop;
       }
       print(findByQQ);
       // final Response response = await HttpManager().post(apiList['QQ_SONG_FINDS'],
