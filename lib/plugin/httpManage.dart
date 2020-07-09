@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
 class HttpManager {
   //一个人工智能回答的免费API
@@ -19,6 +23,16 @@ class HttpManager {
     return _instance;
   }
 
+  initCookie() async {
+    // String b =
+    //     'http://ia.51.la/go1?id=20118467&rt=${DateTime.now().millisecondsSinceEpoch}&rl=1920*1080&lang=zh-CN&ct=unknow&pf=1&ins=0&vd=8&ce=1&cd=24&ds=&ing=8&ekc=&sid=${DateTime.now().millisecondsSinceEpoch}&tt=%25E7%25BD%2591%25E6%2598%2593%25E4%25BA%2591%25E9%259F%25B3%25E4%25B9%2590&kw=&cu=http%253A%252F%252F192.168.0.107%253A8080%252F%2523%252F&pu=';
+
+    // final Response response = await _dio.get(b);
+    // var dataTime = response.headers['set-cookie']
+    //     [response.headers['set-cookie'].length - 1];
+    // print(dataTime);
+  }
+
   //构造函数
   HttpManager() {
     _options = new BaseOptions(
@@ -29,7 +43,8 @@ class HttpManager {
         receiveTimeout: receiveTimeOut,
         //设置请求头
         headers: {
-          // "resource":"android"
+          "Cookie":
+              "__tins__20118467=%7B%22sid%22%3A%201594308407816%2C%20%22vd%22%3A%201%2C%20%22expires%22%3A%201594310207816%7D; __51cke__=; __51laig__=1"
         },
         //默认值是"application/json; charset=utf-8",Headers.formUrlEncodedContentType会自动编码请求体.
         contentType: Headers.formUrlEncodedContentType,

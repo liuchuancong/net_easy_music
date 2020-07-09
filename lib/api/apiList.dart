@@ -29,7 +29,8 @@ const apiList = {
   'CAPTCH_VERIFY': '/api/captch/verify',
   'GET_USER_DETAIL': '/api/user/detail',
   'MUSIC_COMMENTS': '/api/comment/music',
-  'GET_QQ_VKEY': '//u.y.qq.com/cgi-bin/musicu.fcg?callback=jQuery331015138042840240584_1544498679284&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%225339940689%22%2C%22songmid%22%3A%5B%220039MnYb0qxYhV%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%22%22%2C%22platform%22%3A%2220%22%7D%7D%7D&jsonpCallback=getQQMusicUrl&callback=getQQMusicUrl&_=1544498679292',
+  'GET_QQ_VKEY':
+      '//u.y.qq.com/cgi-bin/musicu.fcg?callback=jQuery331015138042840240584_1544498679284&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%225339940689%22%2C%22songmid%22%3A%5B%220039MnYb0qxYhV%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%22%22%2C%22platform%22%3A%2220%22%7D%7D%7D&jsonpCallback=getQQMusicUrl&callback=getQQMusicUrl&_=1544498679292',
   'DAILY_RECOMMEND_SONGS': '/api/recommend/songs', // 日推
   'DAILY_RECOMMEND_LIST': '/api/recommend/resource', // 日推歌单
   'RECOMMEND_LIST': '/api/personalized', // 未登录用户的推荐歌单
@@ -50,58 +51,58 @@ const apiList = {
   'GET_DJ_CATE_LIST': '/api/dj/catelist', // 获取电台分类
   'GET_DJ_RECOMMEND': '/api/dj/recommend/type', // 根据分类获取推荐的电台
   'GET_DJ_DETAIL': '/api/dj/detail', // 获取电台的详细信息
-  'GET_DJ_SONGS': 'api/dj/program', // 获取电台的歌单
-  'GET_PERSON_FM': 'api/personal_fm', // 获取私人fm
-  'GET_MV_INFO': 'api/mv/detail', // 获取 mv 信息
-  'GET_SIMI_MV': 'api/simi/mv', // 获取相似 mv
-  'SUBSCRIBE_PLAYLIST': 'api/playlist/subscribe', // 收藏/取消收藏 歌单
+  'GET_DJ_SONGS': '/api/dj/program', // 获取电台的歌单
+  'GET_PERSON_FM': '/api/personal_fm', // 获取私人fm
+  'GET_MV_INFO': '/api/mv/detail', // 获取 mv 信息
+  'GET_SIMI_MV': '/api/simi/mv', // 获取相似 mv
+  'SUBSCRIBE_PLAYLIST': '/api/playlist/subscribe', // 收藏/取消收藏 歌单
 
-  'QQ_SEARCH': 'apiQ/search', // qq 音乐搜索
-  'QQ_VKEY': 'apiQ/vkey', // qq音乐 vkey
-  'QQ_LYRIC': 'apiQ/lyric', // qq音乐歌词
-  'QQ_GET_COMMENT': 'apiQ/comment', // qq音乐获取评论
-  'QQ_GET_URLS': 'apiQ/song/urls', // 获取 qq 音乐播放链接
-  'QQ_SONG_FIND': 'apiQ/song/find', // 根据关键词去查找一首qq音乐中的歌
-  'QQ_SONG_FINDS': 'apiQ/song/finds', // 批量的查找
-  'QQ_SET_COOKIE': 'apiQ/user/setCookie', // 设置 cookie
-  'QQ_USER_DETAIL': 'apiQ/user/detail', // 查询qq用户的歌单
-  'QQ_LIST_DETAIL': 'apiQ/songlist', // qq 音乐歌单
-  'QQ_SINGER_DESC': 'apiQ/singer/desc', // qq 歌手介绍
-  'QQ_SINGER_SIM': 'apiQ/singer/sim', // qq 相似歌手
-  'QQ_SINGER_SONGS': 'apiQ/singer/songs', // qq 歌手的热门歌曲
-  'QQ_SINGER_ALBUMS': 'apiQ/singer/album', // qq 歌手的专辑
-  'QQ_ALBUM': 'apiQ/album', // qq 专辑信息
-  'QQ_ALBUM_SONGS': 'apiQ/album/songs', // qq 专辑歌曲
-  'QQ_SONG_DETAIL': 'apiQ/song', // qq 歌曲详情
-  'QQ_MV_INFO': 'apiQ/mv', // qq mv 信息,
-  'QQ_MV_URL': 'apiQ/mv/url', // qq mv 播放链接
-  'QQ_DOWN_URL': 'apiQ/song/url', // qq 下载歌曲链接
-  'QQ_RECOMMEND_PLAYLIST': 'apiQ/recommend/playlist', // qq 推荐歌单
-  'QQ_GET_COOKIE': 'apiQ/user/getCookie', // qq 获取cookie
-  'QQ_SONG_LIST_MAP': 'apiQ/songlist/map', // qq 获取歌单歌曲id哈希表
-  'QQ_USER_SONG_LIST': 'apiQ/user/songlist', // qq 获取用户的歌单
-  'QQ_SONG_LIST_ADD': 'apiQ/songlist/add', // 添加歌曲到歌单
-  'QQ_SONG_LIST_REMOVE': 'apiQ/songlist/remove', // 把歌曲移出歌单
-  'QQ_COMMENT_LIKE': 'apiQ/comment/like', // qq 音乐评论点赞
-  'QQ_COMMENT_DELETE': 'apiQ/comment/del', // qq 音乐删除评论
-  'QQ_COMMENT_SEND': 'apiQ/comment/send', // qq 音乐发送评论
-  'QQ_COLLECTED_SONGLIST': 'apiQ/user/collect/songlist', // qq 音乐用户收藏的歌单
-  'QQ_COLLECT_SONGLIST': 'apiQ/songlist/collect', // qq 音乐收藏歌单操作
+  'QQ_SEARCH': '/apiQ/search', // qq 音乐搜索
+  'QQ_VKEY': '/apiQ/vkey', // qq音乐 vkey
+  'QQ_LYRIC': '/apiQ/lyric', // qq音乐歌词
+  'QQ_GET_COMMENT': '/apiQ/comment', // qq音乐获取评论
+  'QQ_GET_URLS': '/apiQ/song/urls', // 获取 qq 音乐播放链接
+  'QQ_SONG_FIND': '/apiQ/song/find', // 根据关键词去查找一首qq音乐中的歌
+  'QQ_SONG_FINDS': '/apiQ/song/finds', // 批量的查找
+  'QQ_SET_COOKIE': '/apiQ/user/setCookie', // 设置 cookie
+  'QQ_USER_DETAIL': '/apiQ/user/detail', // 查询qq用户的歌单
+  'QQ_LIST_DETAIL': '/apiQ/songlist', // qq 音乐歌单
+  'QQ_SINGER_DESC': '/apiQ/singer/desc', // qq 歌手介绍
+  'QQ_SINGER_SIM': '/apiQ/singer/sim', // qq 相似歌手
+  'QQ_SINGER_SONGS': '/apiQ/singer/songs', // qq 歌手的热门歌曲
+  'QQ_SINGER_ALBUMS': '/apiQ/singer/album', // qq 歌手的专辑
+  'QQ_ALBUM': '/apiQ/album', // qq 专辑信息
+  'QQ_ALBUM_SONGS': '/apiQ/album/songs', // qq 专辑歌曲
+  'QQ_SONG_DETAIL': '/apiQ/song', // qq 歌曲详情
+  'QQ_MV_INFO': '/apiQ/mv', // qq mv 信息,
+  'QQ_MV_URL': '/apiQ/mv/url', // qq mv 播放链接
+  'QQ_DOWN_URL': '/apiQ/song/url', // qq 下载歌曲链接
+  'QQ_RECOMMEND_PLAYLIST': '/apiQ/recommend/playlist', // qq 推荐歌单
+  'QQ_GET_COOKIE': '/apiQ/user/getCookie', // qq 获取cookie
+  'QQ_SONG_LIST_MAP': '/apiQ/songlist/map', // qq 获取歌单歌曲id哈希表
+  'QQ_USER_SONG_LIST': '/apiQ/user/songlist', // qq 获取用户的歌单
+  'QQ_SONG_LIST_ADD': '/apiQ/songlist/add', // 添加歌曲到歌单
+  'QQ_SONG_LIST_REMOVE': '/apiQ/songlist/remove', // 把歌曲移出歌单
+  'QQ_COMMENT_LIKE': '/apiQ/comment/like', // qq 音乐评论点赞
+  'QQ_COMMENT_DELETE': '/apiQ/comment/del', // qq 音乐删除评论
+  'QQ_COMMENT_SEND': '/apiQ/comment/send', // qq 音乐发送评论
+  'QQ_COLLECTED_SONGLIST': '/apiQ/user/collect/songlist', // qq 音乐用户收藏的歌单
+  'QQ_COLLECT_SONGLIST': '/apiQ/songlist/collect', // qq 音乐收藏歌单操作
 
-  'MIGU_SEARCH': 'apiM/search', // 咪咕 搜索
-  'MIGU_URL_GET': 'apiM/song/url', // 咪咕 获取图片、播放链接
-  'MIGU_LYRIC': 'apiM/lyric', // 咪咕 歌词
-  'MIGU_SINGER_DESC': 'apiM/singer/desc', // 歌手详情
-  'MIGU_SINGER_SONGS': 'apiM/singer/songs', // 根据歌手获取歌曲
-  'MIGU_SINGER_ALBUMS': 'apiM/singer/albums', // 根据歌手获取专辑
-  'MIGU_ALBUM': 'apiM/album', // 获取专辑信息
-  'MIGU_SONG_INFO': 'apiM/song', // 咪咕 获取歌曲信息
-  'MIGU_PLAYLIST': 'apiM/playlist', // 咪咕 歌单
-  'MIGU_RECOMMEND_PLAYLIST': 'apiM/recommend/playlist', // 咪咕 推荐歌单
+  'MIGU_SEARCH': '/apiM/search', // 咪咕 搜索
+  'MIGU_URL_GET': '/apiM/song/url', // 咪咕 获取图片、播放链接
+  'MIGU_LYRIC': '/apiM/lyric', // 咪咕 歌词
+  'MIGU_SINGER_DESC': '/apiM/singer/desc', // 歌手详情
+  'MIGU_SINGER_SONGS': '/apiM/singer/songs', // 根据歌手获取歌曲
+  'MIGU_SINGER_ALBUMS': '/apiM/singer/albums', // 根据歌手获取专辑
+  'MIGU_ALBUM': '/apiM/album', // 获取专辑信息
+  'MIGU_SONG_INFO': '/apiM/song', // 咪咕 获取歌曲信息
+  'MIGU_PLAYLIST': '/apiM/playlist', // 咪咕 歌单
+  'MIGU_RECOMMEND_PLAYLIST': '/apiM/recommend/playlist', // 咪咕 推荐歌单
 
-  'COMMON_GET_FEEDBACK': 'apiQ/feedback', // 获取反馈
-  'COMMON_ADD_FEEDBACK': 'apiQ/feedback/add', // 增加反馈
-  'COMMON_DELETE_FEEDBACK': 'apiQ/feedback/delete', // 删除反馈
+  'COMMON_GET_FEEDBACK': '/apiQ/feedback', // 获取反馈
+  'COMMON_ADD_FEEDBACK': '/apiQ/feedback/add', // 增加反馈
+  'COMMON_DELETE_FEEDBACK': '/apiQ/feedback/delete', // 删除反馈
 
   '163': '//music.jsososo.com/neapi/index.php',
   'QQ_SONG_INFO': '//u.y.qq.com/cgi-bin/musicu.fcg',

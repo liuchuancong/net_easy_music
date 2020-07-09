@@ -138,7 +138,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         .textTheme
         .bodyText2
         .copyWith(height: 2, fontSize: 16, color: Colors.white);
-    print('```````````````````````');
     if (lyricContent != null && lyricContent.size > 0) {
       return LayoutBuilder(builder: (context, constraints) {
         final normalStyle = style.copyWith(color: style.color.withOpacity(0.7));
@@ -373,11 +372,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         });
       }
       print(findByQQ);
-      // final Response response = await HttpManager().post(apiList['QQ_SONG_FINDS'],
-      //     params: {
-      //       'id': idString,
-      //       '_p': platform,
-      //     });
+      final Response response = await HttpManager()
+          .post(apiList['QQ_SONG_FINDS'], params: {'data': findByQQ});
+      print(response.data);
     }
 
     await AudioInstance().initPlaylist(_songsList);

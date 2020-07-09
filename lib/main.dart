@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:net_easy_music/plugin/httpManage.dart';
 import 'package:provider/provider.dart';
 
 import 'model/drawer_manage.dart';
@@ -17,6 +18,7 @@ void main() {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
+    HttpManager().initCookie();
   }
 
   runApp(MultiProvider(providers: [
