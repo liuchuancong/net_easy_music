@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:net_easy_music/utils/cookie.dart';
 import 'package:provider/provider.dart';
 
 import 'model/drawer_manage.dart';
@@ -18,7 +19,8 @@ void main() {
       DeviceOrientation.portraitUp,
     ]);
   }
-
+  cookieMange.cookieInitTime = DateTime.now().millisecondsSinceEpoch;
+  print(cookieMange.cookieInitTime);
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => DrawerManage()),
     ChangeNotifierProvider(create: (_) => PlaylistManage()),

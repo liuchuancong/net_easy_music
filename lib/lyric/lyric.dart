@@ -19,7 +19,7 @@ class Lyric extends StatefulWidget {
     this.onTap,
     @required this.playing,
     @required this.id,
-  }) : assert(lyric.size > 0);
+  });
 
   final TextStyle lyricLineStyle;
 
@@ -195,7 +195,6 @@ class LyricState extends State<Lyric> with TickerProviderStateMixin {
           _flingController = null;
         },
         onVerticalDragUpdate: (details) {
-          debugPrint("details.primaryDelta : ${details.primaryDelta}");
           lyricPainter.offsetScroll += details.primaryDelta;
         },
         onVerticalDragEnd: (details) {
@@ -293,8 +292,9 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
     if (lyricTranslation != null) {
       for (int i = 0; i < lyricTranslation.size; i++) {
         var painter = TextPainter(
-            text: TextSpan(style: style, text: lyricTranslation[i].line),
-            textAlign: textAlign);
+          text: TextSpan(style: style, text: lyricTranslation[i].line),
+          textAlign: textAlign,
+        );
         painter.textDirection = TextDirection.ltr;
         lyricTranslationPainters.add(painter);
       }
@@ -433,7 +433,7 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
       p.layout(maxWidth: size.width);
       _height += p.height;
     });
-    if (lyricTranslation != null && lyricTranslation.size != 0) {
+    if (lyricTranslation != null && lyricTranslation.size > 0) {
       lyricTranslationPainters.forEach((p) {
         p.layout(maxWidth: size.width);
         _height += p.height;
@@ -447,23 +447,25 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
       return 0;
     }
 
-    double height = -lyricPainters[0].height / 2;
+    double height = 0.0;
+    if (lyricTranslation != null && lyricTranslation.size != 0) {
+      height += -lyricTranslationPainters[0].height / 2;
+    }
+    height = -lyricPainters[0].height / 2;
     for (int i = 0; i < lyricPainters.length; i++) {
       if (i == destination) {
-        if (lyricTranslation != null && lyricTranslation.size != 0) {
-          height += lyricPainters[i].height / 2;
-          height += lyricTranslationPainters[i].height / 2;
-        } else {
-          height += lyricPainters[i].height / 2;
-        }
-
+        height += lyricPainters[i].height / 2;
         break;
       }
-      if (lyricTranslation != null && lyricTranslation.size != 0) {
-        height += lyricPainters[i].height;
+      height += lyricPainters[i].height;
+    }
+    if (lyricTranslation != null && lyricTranslationPainters.length > 0) {
+      for (int i = 0; i < lyricTranslationPainters.length; i++) {
+        if (i == destination) {
+          height += lyricTranslationPainters[i].height / 2;
+          break;
+        }
         height += lyricTranslationPainters[i].height;
-      } else {
-        height += lyricPainters[i].height;
       }
     }
     return -(height + offsetScroll);

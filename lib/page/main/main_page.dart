@@ -207,8 +207,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     position: _currentSeconds.floor() * 1000,
                     onTap: _setLyricState,
                     size: Size(
-                        constraints.maxWidth,
-                        constraints.maxHeight == double.infinity
+                        constraints.maxWidth,constraints.maxHeight == double.infinity
                             ? 0
                             : constraints.maxHeight),
                     playing: isPlaying,
@@ -322,12 +321,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     int baseLoop = 50;
     List<int> ids = [];
     List<DataList> unFoundList = [];
+    List<DataList> reMoveList = [];
     list.forEach((song) {
       ids.add(song.id);
     });
-    print(list[2].aId);
     audioPlayer.Playlist _songsList = new audioPlayer.Playlist();
     int loopCount = (list.length / baseLoop).ceil();
+    // 循环获取歌曲的uir  
     for (var i = 0; i < loopCount; i++) {
       String idString;
       int loopEnd = 0;
@@ -356,27 +356,47 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         }
       });
     }
-
+    // 先删掉找不到的歌曲 然后获取然后添加不然歌曲和歌曲链接不对应
+    unFoundList.forEach((song) {
+      context.read<PlaylistManage>().playlist.remove(song);
+    });
+    //找不到去QQ音乐找
     int unFoundListLoopCount = (unFoundList.length / baseLoop).ceil();
     for (var i = 0; i < unFoundListLoopCount; i++) {
       Map findByQQ = {};
-      if (i == loopCount - 1) {
+      int loopEnd = 0;
+      if (i == unFoundListLoopCount - 1) {
         unFoundList.getRange(baseLoop * i, unFoundList.length).forEach((song) {
-          findByQQ['$platform' + '_' + '${song.id.toString()}'] =
+          findByQQ[song.id.toString()] =
               '${song.name}' + ' ' + '${song.ar.map((a) => a.name).join(' ')}';
+          loopEnd = unFoundList.length;
         });
       } else {
         unFoundList.getRange(baseLoop * i, (1 + i) * baseLoop).forEach((song) {
-          findByQQ['$platform' + '_' + '${song.id.toString()}'] =
+          findByQQ[song.id.toString()] =
               '${song.name}' + ' ' + '${song.ar.map((a) => a.name).join(' ')}';
         });
+        loopEnd = (1 + i) * baseLoop;
       }
-      print(findByQQ);
       final Response response = await HttpManager()
-          .post(apiList['QQ_SONG_FINDS'], params: {'data': findByQQ});
-      print(response.request.headers);
+          .post(apiList['QQ_SONG_FINDS'], data: {'data': findByQQ});
+      if (response.data['result'] == 100) {
+        String songsurl = jsonEncode(response.data['data']);
+        unFoundList.getRange(baseLoop * i, loopEnd).forEach((song) {
+          String url = jsonDecode(songsurl)[song.id.toString()]['url'];
+          print(url);
+          if (url != null) {
+            audioPlayer.Audio _audio = _getAudio(song, url);
+            context.read<PlaylistManage>().playlist.add(song);
+            _songsList.add(_audio);
+          } else {
+            reMoveList.add(song);
+          }
+        });
+      }
     }
-
+     //这些歌曲都是找不到的 不过几乎没有
+    //reMoveList
     await AudioInstance().initPlaylist(_songsList);
   }
 
@@ -417,8 +437,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       if (songsMap['result'] == 100) {
         lyricContent = LyricContent.from(songsMap['data']['lyric']);
         lyricTranslateContent = LyricContent.from(songsMap['data']['trans']);
-      } else {
-        print(songsMap['result']);
       }
     } catch (e) {
       print(e.toString());

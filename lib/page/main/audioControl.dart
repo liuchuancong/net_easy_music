@@ -6,6 +6,7 @@ import 'package:net_easy_music/components/controlButton.dart';
 import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/page/play_record/playRecord.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
+import 'package:net_easy_music/utils/cookie.dart';
 import 'package:provider/provider.dart';
 import '../../extension/duration.dart';
 import 'package:assets_audio_player/assets_audio_player.dart' as audioPlayer;
@@ -104,26 +105,20 @@ class _AudioControlState extends State<AudioControl> {
 
   Widget _buildPlayBarAndSongInfo() {
     final currentPlay = Provider.of<PlaylistManage>(context).currentPlay;
-    return Column(
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Text(
-              currentPlay.name,
-              style: songNameStyle,
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Text(
-              currentPlay.ar[0].name,
-              style: authorNameStyle,
-            ),
-          ],
-        ),
-        // _buildSeekBar(context)
-      ],
-    );
+    return RichText(
+        overflow: TextOverflow.ellipsis,
+        text: TextSpan(children: <TextSpan>[
+          TextSpan(
+            text: currentPlay.name,
+            style: songNameStyle,
+          ),
+          TextSpan(text: ' - '),
+          TextSpan(
+            text: currentPlay.ar[0].name,
+            style: authorNameStyle,
+          ),
+        ]),
+        textAlign: TextAlign.left);
   }
 
   Widget _buildSeekBar(BuildContext context) {
@@ -139,7 +134,10 @@ class _AudioControlState extends State<AudioControl> {
                 children: <Widget>[
                   Align(
                       alignment: Alignment.centerLeft,
-                      child: _buildPlayBarAndSongInfo()),
+                      child: Container(
+                        child: _buildPlayBarAndSongInfo(),
+                        width: 200,
+                      )),
                   Align(
                       alignment: Alignment.centerRight,
                       child: Row(
@@ -163,9 +161,8 @@ class _AudioControlState extends State<AudioControl> {
                 style: SliderStyle(
                     disableDepth: true,
                     thumbBorder: NeumorphicBorder(
-                      color: theme.bodyText2.color.withOpacity(0.75),
-                      width: 4.0
-                    ),
+                        color: theme.bodyText2.color.withOpacity(0.75),
+                        width: 4.0),
                     accent: theme.bodyText2.color.withOpacity(0.75),
                     variant: theme.caption.color.withOpacity(0.3)),
                 onChanged: (value) {
@@ -211,6 +208,8 @@ class _AudioControlState extends State<AudioControl> {
   }
 
   Future<void> _playSong() async {
+    print('expiresTime ${cookieMange.expiresTime}');
+    print('cookieInitTime ${cookieMange.cookieInitTime}');
     await AudioInstance().play();
   }
 

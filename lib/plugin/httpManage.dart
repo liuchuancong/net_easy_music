@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:net_easy_music/utils/cookie.dart';
 
 class HttpManager {
   //一个人工智能回答的免费API
@@ -10,13 +14,26 @@ class HttpManager {
   static HttpManager _instance;
   Dio _dio;
   BaseOptions _options;
-
   //单例模式，只创建一次实例
   static HttpManager getInstance() {
     if (null == _instance) {
       _instance = new HttpManager();
     }
     return _instance;
+  }
+
+  initCookies(RequestOptions options) {
+    int nowTime = DateTime.now().millisecondsSinceEpoch;
+    if (cookieMange.expiresTime < nowTime) {
+      cookieMange.cookieInitTime = nowTime;
+    }
+    Map<String, dynamic> headers = new Map();
+    headers['Content-Type'] = 'application/json;charset=utf-8';
+    headers['User-Agent'] =
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36';
+    headers['Cookie'] =
+        '__51cke__=; __tins__20118467={"sid": ${cookieMange.cookieInitTime}, "vd": 1, "expires": ${cookieMange.expiresTime}}; __51laig__=10';
+    options.headers.addAll(new Map<String, dynamic>.from(headers));
   }
 
   //构造函数
@@ -28,23 +45,18 @@ class HttpManager {
         //响应时间为3秒
         receiveTimeout: receiveTimeOut,
         //设置请求头
-        headers: {
-          "Cookie":
-              "__tins__20118467=%7B%22sid%22%3A%201594308407816%2C%20%22vd%22%3A%201%2C%20%22expires%22%3A%201594310207816%7D; __51cke__=; __51laig__=1",
-          'User-Agent':
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36',
-          'Content-Type': 'application/json;charset=UTF-8'
-        },
+        headers: {},
         //默认值是"application/json; charset=utf-8",Headers.formUrlEncodedContentType会自动编码请求体.
-        contentType: Headers.formUrlEncodedContentType,
         //共有三种方式json,bytes(响应字节),stream（响应流）,plain
-        responseType: ResponseType.json);
+        responseType: ResponseType.json,
+        contentType:
+            ContentType.parse("application/json;charset=utf-8").toString());
     _dio = new Dio(_options);
 
     //添加拦截器
     _dio.interceptors
         .add(InterceptorsWrapper(onRequest: (RequestOptions options) {
-      print("在请求之前的拦截信息");
+      this.initCookies(options);
       return options;
     }, onResponse: (Response response) {
       print("在响应之前的拦截信息");
@@ -53,6 +65,20 @@ class HttpManager {
       print("在错误之前的拦截信息");
       return e;
     }));
+    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+        (client) {
+      client.findProxy = (url) {
+        ///设置代理 电脑ip地址
+        return "PROXY 192.168.2.114:8888";
+
+        ///不设置代理
+        // return 'DIRECT';
+      };
+
+      ///忽略证书
+      client.badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+    };
   }
 
   //get请求方法
@@ -69,14 +95,15 @@ class HttpManager {
   }
 
   //post请求
-  post(url, {params, options, cancelToken}) async {
+  post(url, {params, options, cancelToken, data}) async {
     Response response;
     try {
       response = await _dio.post(url,
-          queryParameters: params, options: options, cancelToken: cancelToken);
-      print('postHttp response: $response');
+          queryParameters: params,
+          options: options,
+          cancelToken: cancelToken,
+          data: data);
     } on DioError catch (e) {
-      print('postHttp exception: $e');
       formatError(e);
     }
     return response;
@@ -88,9 +115,7 @@ class HttpManager {
     try {
       response = await _dio.post(url,
           options: options, cancelToken: cancelToken, data: data);
-      print('postHttp response: $response');
     } on DioError catch (e) {
-      print('postHttp exception: $e');
       formatError(e);
     }
     return response;
