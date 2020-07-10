@@ -21,7 +21,9 @@ class NavBar extends StatelessWidget {
           style: navBarTextStyle,
         ),
         onTap: () {
-          Navigator.of(context).pop();
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
           onTap();
         },
       ),

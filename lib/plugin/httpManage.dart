@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:net_easy_music/utils/cookie.dart';
 
@@ -65,20 +63,14 @@ class HttpManager {
       print("在错误之前的拦截信息");
       return e;
     }));
-    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (client) {
-      client.findProxy = (url) {
-        ///设置代理 电脑ip地址
-        return "PROXY 192.168.2.114:8888";
-
-        ///不设置代理
-        // return 'DIRECT';
-      };
-
-      ///忽略证书
-      client.badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-    };
+    // (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+    //     (client) {
+    //   client.findProxy = (url) {
+    //     return "PROXY 192.168.2.114:8888";
+    //   };
+    //   client.badCertificateCallback =
+    //       (X509Certificate cert, String host, int port) => true;
+    // };
   }
 
   //get请求方法

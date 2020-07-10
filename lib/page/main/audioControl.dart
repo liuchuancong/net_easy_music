@@ -34,6 +34,7 @@ class _AudioControlState extends State<AudioControl> {
     readyPlaySubScription();
     currentPositionSubScription();
     currentPlaySubScription();
+    _getSeekBarColor();
     super.initState();
   }
 
@@ -42,7 +43,6 @@ class _AudioControlState extends State<AudioControl> {
     _onReadyToPlaySubscription.cancel();
     _currentPositionSubscription.cancel();
     _currentPlaySubscription.cancel();
-    _getSeekBarColor();
     super.dispose();
   }
 
@@ -81,7 +81,7 @@ class _AudioControlState extends State<AudioControl> {
           playIndex = event.current.index;
           context.read<PlaylistManage>().setCurrentPlay(
               context.read<PlaylistManage>().playlist[playIndex]);
-              _getSeekBarColor();
+          _getSeekBarColor();
         }
       }
     });
