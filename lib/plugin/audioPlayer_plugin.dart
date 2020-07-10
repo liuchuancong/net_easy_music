@@ -44,21 +44,10 @@ class AudioInstance {
   //jsut test
   Future<void> playNetWorkSong() async {
     final String songUrl1 =
-        'http://up_mp4.t57.cn/2018/1/03m/13/396131229550.m4a';
-    final String songUrl2 =
-        'http://up_mp4.t57.cn/2018/1/03m/13/396131226156.m4a';
-    final String songUrl3 =
-        'http://up_mp4.t57.cn/2018/1/03m/13/396131210487.m4a';
+        'http://m7.music.126.net/20200ss710172914/6c13764b11e6b3c58f14e9788a5fa04d/ymusic/09b4/ed81/9c64/cd14a6c96d11c32f50784e0c9d93fe3e.mp3';
     Playlist _playlist = new Playlist();
     _playlist.add(new Audio.network(songUrl1));
-    _playlist.add(new Audio.network(songUrl2));
-    _playlist.add(new Audio.network(songUrl3));
-    try {
-      await assetsAudioPlayer.open(_playlist);
-    } catch (t) {
-      //mp3 unreachable
-      print(t.toString());
-    }
+    await assetsAudioPlayer.open(_playlist);
   }
 
   Future<void> initAudio(song) async {
@@ -156,7 +145,6 @@ class AudioInstance {
   }
 
   Future<void> reMoveAtIndex(int index) async {
-    print(assetsAudioPlayer.playlist.audios.length);
     assetsAudioPlayer.playlist.removeAtIndex(index);
   }
 

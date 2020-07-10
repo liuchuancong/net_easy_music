@@ -36,13 +36,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   double _currentSeconds = 0.0;
   @override
   void initState() {
+    super.initState();
     AudioInstance().requestRecordAudioPermission();
     getRecommendPlaylist();
     currentPlaySong();
     _handlePlayerErr();
     _albumController =
         new AnimationController(vsync: this, duration: Duration(seconds: 60));
-    super.initState();
   }
 
   @override
@@ -69,7 +69,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               children: <Widget>[
                 _buildTopBar(context),
                 _buildCenterSection(context),
-                AudioControl()
+                AudioControl(
+                  showLyric: _showLyric,
+                )
               ],
             ),
             // AudioControl()
@@ -165,7 +167,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         onTap: _setLyricState,
         child: Container(
           child: Center(
-            child: Text('暂无歌词', style: style),
+            child: Text('没有歌词哟，好好享受', style: style),
           ),
         ),
       );
@@ -207,7 +209,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     position: _currentSeconds.floor() * 1000,
                     onTap: _setLyricState,
                     size: Size(
-                        constraints.maxWidth,constraints.maxHeight == double.infinity
+                        constraints.maxWidth,
+                        constraints.maxHeight == double.infinity
                             ? 0
                             : constraints.maxHeight),
                     playing: isPlaying,
@@ -293,6 +296,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   currentPlaySong() {
     _currentPlaySubscription =
         AudioInstance().assetsAudioPlayer.current.listen((playingAudio) {
+      _albumController.reset();
       _getSonglyric(playingAudio.index);
     });
   }
@@ -327,7 +331,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     });
     audioPlayer.Playlist _songsList = new audioPlayer.Playlist();
     int loopCount = (list.length / baseLoop).ceil();
-    // 循环获取歌曲的uir  
+    // 循环获取歌曲的uir
     for (var i = 0; i < loopCount; i++) {
       String idString;
       int loopEnd = 0;
@@ -395,7 +399,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         });
       }
     }
-     //这些歌曲都是找不到的 不过几乎没有
+    //这些歌曲都是找不到的 不过几乎没有
     //reMoveList
     await AudioInstance().initPlaylist(_songsList);
   }
@@ -470,21 +474,25 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   _handlePlayerErr() {
-    AudioInstance().assetsAudioPlayer.onErrorDo = (handler) async {
-      print(handler.error.errorType);
-      print(handler.error.message);
-      // handler.player.open(
-      //   handler.playlist.copyWith(startIndex: handler.playlistIndex),
-      //   seek: handler.currentPosition,
-      // );
-      final path = await getSongNewPath();
-      print(path);
-      if (path != null) {
-        handler.player.playlist.replaceAt(
-            handler.playlistIndex,
-            (oldAudio) =>
-                new audioPlayer.Audio.network(path, metas: oldAudio.metas));
-      }
-    };
+    try {
+      AudioInstance().assetsAudioPlayer.onErrorDo = (handler) async {
+        print('handler.error.errorType${handler.error.errorType}');
+        print('handler.error.message${handler.error.message}');
+        // handler.player.open(
+        //   handler.playlist.copyWith(startIndex: handler.playlistIndex),
+        //   seek: handler.currentPosition,
+        // );
+        // final path = await getSongNewPath();
+        // print(path);
+        // if (path != null) {
+        //   handler.player.playlist.replaceAt(
+        //       handler.playlistIndex,
+        //       (oldAudio) =>
+        //           new audioPlayer.Audio.network(path, metas: oldAudio.metas));
+        // }
+      };
+    } catch (e) {
+      print('e : $e');
+    }
   }
 }

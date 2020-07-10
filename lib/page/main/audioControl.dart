@@ -7,12 +7,14 @@ import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/page/play_record/playRecord.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
 import 'package:net_easy_music/utils/cookie.dart';
+import 'package:net_easy_music/utils/paletteColor.dart';
 import 'package:provider/provider.dart';
 import '../../extension/duration.dart';
 import 'package:assets_audio_player/assets_audio_player.dart' as audioPlayer;
 
 class AudioControl extends StatefulWidget {
-  const AudioControl({Key key}) : super(key: key);
+  final bool showLyric;
+  const AudioControl({Key key, @required this.showLyric}) : super(key: key);
   @override
   _AudioControlState createState() => _AudioControlState();
 }
@@ -26,6 +28,7 @@ class _AudioControlState extends State<AudioControl> {
   StreamSubscription _currentPositionSubscription;
   StreamSubscription _currentPlaySubscription;
   int playIndex = 0;
+  Color _seekBarcolor = Colors.white;
   @override
   void initState() {
     readyPlaySubScription();
@@ -39,6 +42,7 @@ class _AudioControlState extends State<AudioControl> {
     _onReadyToPlaySubscription.cancel();
     _currentPositionSubscription.cancel();
     _currentPlaySubscription.cancel();
+    _getSeekBarColor();
     super.dispose();
   }
 
@@ -77,9 +81,16 @@ class _AudioControlState extends State<AudioControl> {
           playIndex = event.current.index;
           context.read<PlaylistManage>().setCurrentPlay(
               context.read<PlaylistManage>().playlist[playIndex]);
+              _getSeekBarColor();
         }
       }
     });
+  }
+
+  _getSeekBarColor() async {
+    String url = context.read<PlaylistManage>().currentPlay.al.picUrl;
+    _seekBarcolor = await PaletteColor().getColor(imageUrl: url);
+    setState(() {});
   }
 
   @override
@@ -90,7 +101,7 @@ class _AudioControlState extends State<AudioControl> {
         color: Colors.transparent,
         child: Column(
           children: <Widget>[
-            _buildUserControl(),
+            _buildCenterSection(context),
             SizedBox(
               height: 8,
             ),
@@ -122,7 +133,6 @@ class _AudioControlState extends State<AudioControl> {
   }
 
   Widget _buildSeekBar(BuildContext context) {
-    var theme = Theme.of(context).primaryTextTheme;
     return Stack(
       children: <Widget>[
         Padding(
@@ -159,12 +169,12 @@ class _AudioControlState extends State<AudioControl> {
                 max: _totalSeconds,
                 value: _currentSeconds,
                 style: SliderStyle(
-                    disableDepth: true,
-                    thumbBorder: NeumorphicBorder(
-                        color: theme.bodyText2.color.withOpacity(0.75),
-                        width: 4.0),
-                    accent: theme.bodyText2.color.withOpacity(0.75),
-                    variant: theme.caption.color.withOpacity(0.3)),
+                  disableDepth: true,
+                  thumbBorder: NeumorphicBorder(
+                      color: _seekBarcolor.withOpacity(0.75), width: 4.0),
+                  accent: _seekBarcolor,
+                  variant: _seekBarcolor,
+                ),
                 onChanged: (value) {
                   int flooredValue = value.floor();
                   int hour = (flooredValue / 3600).floor();
@@ -181,7 +191,33 @@ class _AudioControlState extends State<AudioControl> {
     );
   }
 
-  Widget _buildUserControl() {
+  Widget _buildCenterSection(context) {
+    return AnimatedCrossFade(
+        crossFadeState: widget.showLyric
+            ? CrossFadeState.showSecond
+            : CrossFadeState.showFirst,
+        layoutBuilder: (Widget topChild, Key topChildKey, Widget bottomChild,
+            Key bottomChildKey) {
+          return Stack(
+            overflow: Overflow.visible,
+            children: <Widget>[
+              Center(
+                key: bottomChildKey,
+                child: bottomChild,
+              ),
+              Center(
+                key: topChildKey,
+                child: topChild,
+              ),
+            ],
+          );
+        },
+        firstChild: _buildUserControl(context),
+        secondChild: Container(),
+        duration: Duration(milliseconds: 300));
+  }
+
+  Widget _buildUserControl(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 30.0),
       child: Row(

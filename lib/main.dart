@@ -20,7 +20,6 @@ void main() {
     ]);
   }
   cookieMange.cookieInitTime = DateTime.now().millisecondsSinceEpoch;
-  print(cookieMange.cookieInitTime);
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => DrawerManage()),
     ChangeNotifierProvider(create: (_) => PlaylistManage()),
