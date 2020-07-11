@@ -1,11 +1,17 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:net_easy_music/api/apiList.dart';
 import 'package:net_easy_music/components/blurBackground.dart';
 import 'package:net_easy_music/components/customIcon.dart';
+import 'package:net_easy_music/json/searchType/search_type_with_song.dart'
+    as Song;
 import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/page/search/search_item.dart';
+import 'package:net_easy_music/page/search/search_song_item.dart';
+import 'package:net_easy_music/page/search/search_view.dart';
 import 'package:net_easy_music/plugin/httpManage.dart';
 import 'package:net_easy_music/type/platform_type.dart';
 import 'package:net_easy_music/type/search_type.dart';
@@ -24,6 +30,7 @@ class _SearchPageState extends State<SearchPage> {
   SearchType searchType = SearchType.SONG;
   int pageNo = 1;
   TextEditingController _editingController;
+  List<Song.Content> _songList = [];
   @override
   void initState() {
     _editingController = new TextEditingController();
@@ -56,13 +63,17 @@ class _SearchPageState extends State<SearchPage> {
   void platformMusicSelect(PlatformMusic select) {
     setState(() {
       platformMusic = select;
+      pageNo = 1;
     });
+    _onLoading();
   }
 
   void searchTypeSelect(SearchType select) {
     setState(() {
       searchType = select;
+      pageNo = 1;
     });
+    _onLoading();
   }
 
   void _onLoading() async {
@@ -82,7 +93,31 @@ class _SearchPageState extends State<SearchPage> {
 
     final Response response =
         await HttpManager().get(apiList['SEARCH'], data: searchMap);
-    print(response.data);
+    _getListContent(response);
+    print(_songList.length);
+    setState(() {});
+  }
+
+  _getListContent(Response response) {
+    Map songsMap = json.decode(response.toString());
+    if (songsMap['result'] == 100) {
+      pageNo++;
+    }
+    switch (searchType) {
+      case SearchType.SONG:
+        _songList.addAll(SearchViewBuild().buildBySong(
+          context,
+          response,
+          _refreshController,
+        ));
+        break;
+      case SearchType.ALBUM:
+        break;
+      case SearchType.SINGER:
+        break;
+      case SearchType.PLAYLIST:
+        break;
+    }
   }
 
   String getPlatformPara() {
@@ -102,10 +137,10 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   String getsearchTypePara() {
-    String _type = '1';
+    String _type = '0';
     switch (searchType) {
       case SearchType.SONG:
-        _type = '1';
+        _type = '0';
         break;
       case SearchType.ALBUM:
         _type = '2';
@@ -114,7 +149,7 @@ class _SearchPageState extends State<SearchPage> {
         _type = '3';
         break;
       case SearchType.PLAYLIST:
-        _type = '4';
+        _type = '1';
         break;
     }
     return _type;
@@ -192,7 +227,8 @@ class _SearchPageState extends State<SearchPage> {
               children: <Widget>[
                 _buildTextFiled(context),
                 _buildMusicPlatform(context),
-                _buildSearchType(context)
+                _buildSearchType(context),
+                _buildSongList(context)
                 // _buildSongList(context),
               ],
             ),
@@ -287,8 +323,14 @@ class _SearchPageState extends State<SearchPage> {
         controller: _refreshController,
         onLoading: _onLoading,
         header: WaterDropHeader(),
-        child: ListView(
-          children: <Widget>[Text('111111'), Text('111111')],
+        child: ListView.builder(
+          itemCount: _songList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return SearchSongItem(
+              index: index,
+              content: _songList[index],
+            );
+          },
         ),
       ),
     );
