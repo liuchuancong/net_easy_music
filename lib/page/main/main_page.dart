@@ -434,7 +434,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       final Response response =
           await HttpManager().get(apiList['LYRIC'], data: {
         'id': context.read<PlaylistManage>().playlist[index].id,
-        '_p': 163,
+        '_p': context.read<PlaylistManage>().playlist[index].platform,
         '_t': Duration().inMicroseconds.toString()
       });
       Map songsMap = json.decode(response.toString());

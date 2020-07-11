@@ -130,18 +130,12 @@ class AudioInstance {
     await assetsAudioPlayer.seekBy(by);
   }
 
-  Future<void> add(song) async {
-    var audio = Audio.network(
-      song.url,
-      metas: Metas(
-        title: song.name,
-        artist: song.artists[0].name,
-        album: song.album.name,
-        image:
-            MetasImage.network(song.album.picUrl), //can be MetasImage.network
-      ),
-    );
+  Future<void> add(Audio audio) async {
     assetsAudioPlayer.playlist.add(audio);
+  }
+
+  Future<void> addAll(List<Audio> audio) async {
+    assetsAudioPlayer.playlist.addAll(audio);
   }
 
   Future<void> reMoveAtIndex(int index) async {

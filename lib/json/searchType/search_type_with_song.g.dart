@@ -47,14 +47,14 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
 Content _$ContentFromJson(Map<String, dynamic> json) {
   return Content(
     json['name'] as String,
-    json['id'] as dynamic,
+    json['id'],
     json['songid'] as int,
     json['mid'] as String,
     json['mediaId'] as String,
     (json['ar'] as List)
         ?.map((e) => e == null ? null : Ar.fromJson(e as Map<String, dynamic>))
         ?.toList(),
-    json['mvId'] as dynamic,
+    json['mvId'],
     json['al'] == null ? null : Al.fromJson(json['al'] as Map<String, dynamic>),
     json['trackNo'] as int,
     json['duration'] as int,

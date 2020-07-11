@@ -74,16 +74,16 @@ Map<String, dynamic> _$CreatorToJson(Creator instance) => <String, dynamic>{
 DataList _$DataListFromJson(Map<String, dynamic> json) {
   return DataList(
     json['name'] as String,
-    json['id'] as int,
+    json['id'],
     (json['ar'] as List)
         ?.map((e) => e == null ? null : Ar.fromJson(e as Map<String, dynamic>))
         ?.toList(),
     json['al'] == null ? null : Al.fromJson(json['al'] as Map<String, dynamic>),
-    json['mvId'] as int,
-    json['trackNo'] as int,
-    json['platform'] as String,
+    json['mvId'],
+    json['trackNo'],
+    json['platform'],
     json['duration'] as int,
-    json['aId'] as String,
+    json['aId'],
   );
 }
 
@@ -101,7 +101,7 @@ Map<String, dynamic> _$DataListToJson(DataList instance) => <String, dynamic>{
 
 Ar _$ArFromJson(Map<String, dynamic> json) {
   return Ar(
-    json['id'] as int,
+    json['id'],
     json['name'] as String,
     json['picUrl'] as String,
     json['platform'] as String,
@@ -117,7 +117,7 @@ Map<String, dynamic> _$ArToJson(Ar instance) => <String, dynamic>{
 
 Al _$AlFromJson(Map<String, dynamic> json) {
   return Al(
-    json['id'] as int,
+    json['id'],
     json['name'] as String,
     json['picUrl'] as String,
     json['platform'] as String,

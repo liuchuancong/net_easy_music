@@ -62,7 +62,7 @@ class Content extends Object {
   String name;
 
   @JsonKey(name: 'id')
-  String id;
+  dynamic id;
 
   @JsonKey(name: 'creator')
   Creator creator;

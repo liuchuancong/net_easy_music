@@ -1,9 +1,13 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:net_easy_music/json/searchType/search_type_with_song.dart'
     as Song;
+import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/page/search/wave.dart';
 import 'package:net_easy_music/page/search/wave_config.dart';
+import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
+import 'package:provider/provider.dart';
 
 class SearchSongItem extends StatefulWidget {
   final int index;
@@ -17,48 +21,73 @@ class SearchSongItem extends StatefulWidget {
 
 class _SearchSongItemState extends State<SearchSongItem> {
   Widget _buildImage() {
-    return Image(
-      image: widget.content.al.picUrl != null
-          ? CachedNetworkImageProvider(
-              widget.content.al.picUrl.toString() + '?param=120y120',
-            )
-          : new AssetImage('music2.jpg'),
-      fit: BoxFit.cover,
-      height: 40,
-      width: 40,
-      gaplessPlayback: true,
-    );
+    return ClipRRect(
+        borderRadius: BorderRadius.circular(2),
+        child: Container(
+          height: 50,
+          width: 50,
+          child: widget.content.al.picUrl != null
+              ? new CachedNetworkImage(
+                  imageUrl: widget.content.al.picUrl + '?param=120y120',
+                  errorWidget: (context, url, error) =>
+                      new Image.asset('assets/music2.jpg', fit: BoxFit.cover))
+              : new Image.asset('assets/music2.jpg', fit: BoxFit.cover),
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        if (widget.index == 1)
-          RotatedBox(
-            quarterTurns: 45,
-            child: Container(
-              height: double.infinity,
-              width: 90,
-              child: WaveWidget(
-                wavePhase: 50,
-                config: CustomConfig(
-                  colors: [
-                    Color.fromRGBO(64, 158, 255, 0.6),
-                    HSLColor.fromAHSL(0.13, 0, 0, 1).toColor()
-                  ],
-                  durations: [4000, 3000],
-                  heightPercentages: [0.20, 0.21],
-                ),
-                backgroundColor: Colors.transparent,
-                size: Size(double.infinity, double.infinity),
-                waveAmplitude: 0,
-              ),
-            ),
-          ),
+        if (widget.content.id == context.watch<PlaylistManage>().currentPlay.id)
+          StreamBuilder(
+              stream: AudioInstance().assetsAudioPlayer.current,
+              builder: (context, AsyncSnapshot<Playing> snapshot) {
+                double songDuration;
+                if (snapshot.data == null) {
+                  songDuration = 0;
+                } else {
+                  songDuration =
+                      snapshot.data.audio.duration.inSeconds.toDouble();
+                }
+                return StreamBuilder(
+                    stream: AudioInstance().assetsAudioPlayer.currentPosition,
+                    builder: (context, AsyncSnapshot<Duration> snapshot) {
+                      double _currentSeconds;
+                      if (snapshot.data == null) {
+                        _currentSeconds = 0;
+                      } else {
+                        _currentSeconds = snapshot.data.inSeconds.toDouble();
+                      }
+                      return RotatedBox(
+                        quarterTurns: 45,
+                        child: Container(
+                          height: double.infinity,
+                          width: 90,
+                          child: WaveWidget(
+                            wavePhase: 50,
+                            config: CustomConfig(
+                              colors: [
+                                Color.fromRGBO(64, 158, 255, 0.6),
+                                HSLColor.fromAHSL(0.13, 0, 0, 1).toColor()
+                              ],
+                              durations: [4000, 3000],
+                              heightPercentages: [
+                                (0.8 - (_currentSeconds / songDuration) * 0.8),
+                                (0.8 - (_currentSeconds / songDuration) * 0.8),
+                              ],
+                            ),
+                            backgroundColor: Colors.transparent,
+                            size: Size(double.infinity, double.infinity),
+                            waveAmplitude: 0,
+                          ),
+                        ),
+                      );
+                    });
+              }),
         Container(
           height: 90,
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          margin: EdgeInsets.symmetric(horizontal: 16.0),
           decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(

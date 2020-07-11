@@ -21,6 +21,11 @@ class PlaylistManage extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addAll(List<DataList> list) {
+    this._playList.addAll(list);
+    notifyListeners();
+  }
+
   void setCurrentPlay(DataList currentPlay) {
     this._currentPlay = currentPlay;
     notifyListeners();

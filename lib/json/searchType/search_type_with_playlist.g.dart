@@ -49,7 +49,7 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
 Content _$ContentFromJson(Map<String, dynamic> json) {
   return Content(
     json['name'] as String,
-    json['id'] as String,
+    json['id'],
     json['creator'] == null
         ? null
         : Creator.fromJson(json['creator'] as Map<String, dynamic>),

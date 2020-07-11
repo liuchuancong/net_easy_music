@@ -6,17 +6,29 @@ import 'package:flutter/material.dart';
 import 'package:net_easy_music/api/apiList.dart';
 import 'package:net_easy_music/components/blurBackground.dart';
 import 'package:net_easy_music/components/customIcon.dart';
+import 'package:net_easy_music/json/playlist.dart';
 import 'package:net_easy_music/json/searchType/search_type_with_song.dart'
     as Song;
+import 'package:net_easy_music/json/searchType/search_type_with_album.dart'
+    as Album;
+import 'package:net_easy_music/json/searchType/search_type_with_singer.dart'
+    as Singer;
+import 'package:net_easy_music/json/searchType/search_type_with_playlist.dart'
+    as Playlist;
 import 'package:net_easy_music/model/playlist_manage.dart';
+import 'package:net_easy_music/page/search/search_album_item.dart';
 import 'package:net_easy_music/page/search/search_item.dart';
+import 'package:net_easy_music/page/search/search_playlist_item.dart';
+import 'package:net_easy_music/page/search/search_singer_item.dart';
 import 'package:net_easy_music/page/search/search_song_item.dart';
 import 'package:net_easy_music/page/search/search_view.dart';
+import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
 import 'package:net_easy_music/plugin/httpManage.dart';
 import 'package:net_easy_music/type/platform_type.dart';
 import 'package:net_easy_music/type/search_type.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:assets_audio_player/assets_audio_player.dart' as audioPlayer;
 
 class SearchPage extends StatefulWidget {
   @override
@@ -31,6 +43,14 @@ class _SearchPageState extends State<SearchPage> {
   int pageNo = 1;
   TextEditingController _editingController;
   List<Song.Content> _songList = [];
+  List<Album.Content> _albumList = [];
+  List<Singer.Content> _singerList = [];
+  List<Playlist.Content> _playList = [];
+  // 此为临时播放列表
+  audioPlayer.Playlist _audioPlaylist = new audioPlayer.Playlist();
+  //需要一个状态来控制是否是第一次初始化播放列表,后续只需要往播放列表里面添加
+  bool _openState = false;
+
   @override
   void initState() {
     _editingController = new TextEditingController();
@@ -61,18 +81,194 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void platformMusicSelect(PlatformMusic select) {
+    if (platformMusic == select) {
+      return;
+    }
     setState(() {
       platformMusic = select;
-      pageNo = 1;
     });
+    initSearchConditons();
     _onLoading();
   }
 
+  void initSearchConditons() {
+    setState(() {
+      _songList = [];
+      _albumList = [];
+      _singerList = [];
+      _playList = [];
+      pageNo = 1;
+      _audioPlaylist = new audioPlayer.Playlist();
+      _openState = false;
+    });
+  }
+
+  _getAudioPlaylist(List<Song.Content> songArr) async {
+    List<Song.Content> unFoundList = [];
+    List<Song.Content> reMoveList = [];
+    List<audioPlayer.Audio> _audios = [];
+    if (platformMusic == PlatformMusic.NETEASE) {
+      String platform = '163';
+      int baseLoop = 50;
+      List<int> ids = [];
+      songArr.forEach((song) {
+        ids.add(song.id);
+      });
+      int loopCount = (songArr.length / baseLoop).ceil();
+      // 循环获取歌曲的uir
+      for (var i = 0; i < loopCount; i++) {
+        String idString;
+        int loopEnd = 0;
+        if (i == loopCount - 1) {
+          idString = ids.getRange(baseLoop * i, songArr.length).join(',');
+          loopEnd = songArr.length;
+        } else {
+          idString = ids.getRange(baseLoop * i, (1 + i) * baseLoop).join(',');
+          loopEnd = (1 + i) * baseLoop;
+        }
+        final Response response = await HttpManager().get(apiList['BATCH_URL'],
+            data: {
+              'id': idString,
+              '_p': platform,
+              '_t': Duration().inMicroseconds
+            });
+        final String songsurl = jsonEncode(response.data['data']);
+
+        songArr.getRange(baseLoop * i, loopEnd).forEach((song) {
+          String url = jsonDecode(songsurl)[song.id.toString()];
+          if (url != null) {
+            audioPlayer.Audio _audio = _getAudio(song, url);
+            _audios.add(_audio);
+            _audioPlaylist.add(_audio);
+            _songList.add(song);
+          } else {
+            unFoundList.add(song);
+          }
+        });
+      }
+      // 先删掉找不到的歌曲 然后获取然后添加不然歌曲和歌曲链接不对应
+      unFoundList.forEach((song) {
+        _songList.remove(song);
+      });
+      //找不到去QQ音乐找
+      int unFoundListLoopCount = (unFoundList.length / baseLoop).ceil();
+      for (var i = 0; i < unFoundListLoopCount; i++) {
+        Map findByQQ = {};
+        int loopEnd = 0;
+        if (i == unFoundListLoopCount - 1) {
+          unFoundList
+              .getRange(baseLoop * i, unFoundList.length)
+              .forEach((song) {
+            findByQQ[song.id.toString()] = '${song.name}' +
+                ' ' +
+                '${song.ar.map((a) => a.name).join(' ')}';
+            loopEnd = unFoundList.length;
+          });
+        } else {
+          unFoundList
+              .getRange(baseLoop * i, (1 + i) * baseLoop)
+              .forEach((song) {
+            findByQQ[song.id.toString()] = '${song.name}' +
+                ' ' +
+                '${song.ar.map((a) => a.name).join(' ')}';
+          });
+          loopEnd = (1 + i) * baseLoop;
+        }
+        final Response response = await HttpManager()
+            .post(apiList['QQ_SONG_FINDS'], data: {'data': findByQQ});
+        if (response.data['result'] == 100) {
+          String songsurl = jsonEncode(response.data['data']);
+          unFoundList.getRange(baseLoop * i, loopEnd).forEach((song) {
+            String url = jsonDecode(songsurl)[song.id.toString()]['url'];
+            if (url != null) {
+              audioPlayer.Audio _audio = _getAudio(song, url);
+              _audioPlaylist.add(_audio);
+              _songList.add(song);
+              _audios.add(_audio);
+            } else {
+              reMoveList.add(song);
+            }
+          });
+        }
+      }
+    } else if (platformMusic == PlatformMusic.QQ) {
+      Map findByQQ = {};
+      songArr.forEach((song) {
+        findByQQ[song.id.toString()] =
+            '${song.name}' + ' ' + '${song.ar.map((a) => a.name).join(' ')}';
+      });
+      final Response response = await HttpManager()
+          .post(apiList['QQ_SONG_FINDS'], data: {'data': findByQQ});
+      if (response.data['result'] == 100) {
+        String songsurl = jsonEncode(response.data['data']);
+        songArr.forEach((song) {
+          String url = jsonDecode(songsurl)[song.id.toString()]['url'];
+          if (url != null) {
+            audioPlayer.Audio _audio = _getAudio(song, url);
+            _audioPlaylist.add(_audio);
+            _songList.add(song);
+          } else {
+            reMoveList.add(song);
+          }
+        });
+      }
+      reMoveList.forEach((song) {
+        songArr.remove(song);
+      });
+    }
+
+    //这些歌曲都是找不到的 不过几乎没有
+    //reMoveList
+    // 将新增加的歌曲加入播放列表
+    setState(() {});
+    if (_openState) {
+      List<DataList> list = [];
+      songArr.forEach((song) {
+        List<Ar> arList = [];
+        song.ar.forEach((ar) {
+          arList.add(new Ar(ar.id, ar.name, ar.picUrl, ar.platform));
+        });
+        Al al =
+            new Al(song.al.id, song.al.name, song.al.picUrl, song.al.platform);
+        list.add(new DataList(song.name, song.id, arList, al, song.mvId,
+            song.trackNo, song.platform, song.duration, song.aId));
+      });
+      context.read<PlaylistManage>().addAll(list);
+      await AudioInstance().addAll(_audios);
+    }
+  }
+
+  audioPlayer.Audio _getAudio(Song.Content song, url) {
+    String _artist;
+    song.ar.forEach((ar) {
+      if (_artist == null) {
+        _artist = ar.name;
+      } else {
+        _artist = _artist + ' ' + ar.name;
+      }
+    });
+    audioPlayer.Audio audio = audioPlayer.Audio.network(
+      url,
+      metas: audioPlayer.Metas(
+        title: song.name,
+        artist: _artist,
+        album: song.al.name,
+        image: audioPlayer.MetasImage.network(
+          song.al.picUrl + '?param=1440y1440',
+        ), //can be MetasImage.network
+      ),
+    );
+    return audio;
+  }
+
   void searchTypeSelect(SearchType select) {
+    if (searchType == select) {
+      return;
+    }
     setState(() {
       searchType = select;
-      pageNo = 1;
     });
+    initSearchConditons();
     _onLoading();
   }
 
@@ -80,6 +276,7 @@ class _SearchPageState extends State<SearchPage> {
     //关闭键盘
     FocusScope.of(context).requestFocus(FocusNode());
     if (_editingController.text.isEmpty) {
+      _refreshController.loadComplete();
       return;
     }
     // 获取歌曲
@@ -93,29 +290,43 @@ class _SearchPageState extends State<SearchPage> {
 
     final Response response =
         await HttpManager().get(apiList['SEARCH'], data: searchMap);
-    _getListContent(response);
-    print(_songList.length);
-    setState(() {});
+    await _getListContent(response);
   }
 
-  _getListContent(Response response) {
+  _getListContent(Response response) async {
     Map songsMap = json.decode(response.toString());
     if (songsMap['result'] == 100) {
       pageNo++;
     }
     switch (searchType) {
       case SearchType.SONG:
-        _songList.addAll(SearchViewBuild().buildBySong(
+        List<Song.Content> _songs = SearchViewBuild().buildBySong(
+          context,
+          response,
+          _refreshController,
+        );
+        await _getAudioPlaylist(_songs);
+        break;
+      case SearchType.ALBUM:
+        _albumList.addAll(SearchViewBuild().buildByAlbum(
           context,
           response,
           _refreshController,
         ));
         break;
-      case SearchType.ALBUM:
-        break;
       case SearchType.SINGER:
+        _singerList.addAll(SearchViewBuild().buildBySinger(
+          context,
+          response,
+          _refreshController,
+        ));
         break;
       case SearchType.PLAYLIST:
+        _playList.addAll(SearchViewBuild().buildByPlaylist(
+          context,
+          response,
+          _refreshController,
+        ));
         break;
     }
   }
@@ -208,6 +419,7 @@ class _SearchPageState extends State<SearchPage> {
             // focusedBorder: InputBorder.none,
           ),
           onEditingComplete: () {
+            initSearchConditons();
             _onLoading();
           },
         ),
@@ -284,55 +496,163 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildSongList(BuildContext context) {
+    TextStyle _style = TextStyle(
+        fontSize: 16, color: Colors.white, fontWeight: FontWeight.w500);
     return Expanded(
       child: SmartRefresher(
-        enablePullDown: false,
-        enablePullUp: true,
-        footer: CustomFooter(
-          builder: (BuildContext context, LoadStatus mode) {
-            Widget body;
-            if (mode == LoadStatus.idle) {
-              body = Text(
-                "上拉加载更多~",
-                style: TextStyle(),
+          enablePullDown: false,
+          enablePullUp: true,
+          footer: CustomFooter(
+            builder: (BuildContext context, LoadStatus mode) {
+              Widget body;
+              if (mode == LoadStatus.idle) {
+                body = Text(
+                  "上拉加载更多~",
+                  style: _style,
+                );
+              } else if (mode == LoadStatus.loading) {
+                body = CupertinoTheme(
+                  data: CupertinoTheme.of(context)
+                      .copyWith(brightness: Brightness.dark),
+                  child: CupertinoActivityIndicator(),
+                );
+              } else if (mode == LoadStatus.failed) {
+                body = Text(
+                  "加载失败,请稍后重试~",
+                  style: _style,
+                );
+              } else if (mode == LoadStatus.canLoading) {
+                body = Text(
+                  "松开加载~",
+                  style: _style,
+                );
+              } else {
+                body = Text(
+                  "没有更多了",
+                  style: _style,
+                );
+              }
+              return Container(
+                height: 55.0,
+                child: Center(child: body),
               );
-            } else if (mode == LoadStatus.loading) {
-              body = CupertinoActivityIndicator();
-            } else if (mode == LoadStatus.failed) {
-              body = Text(
-                "加载失败,请稍后重试~",
-                style: TextStyle(),
-              );
-            } else if (mode == LoadStatus.canLoading) {
-              body = Text(
-                "松开加载~",
-                style: TextStyle(),
-              );
-            } else {
-              body = Text(
-                "没有更多了",
-                style: TextStyle(),
-              );
-            }
-            return Container(
-              height: 55.0,
-              child: Center(child: body),
-            );
-          },
-        ),
-        controller: _refreshController,
-        onLoading: _onLoading,
-        header: WaterDropHeader(),
-        child: ListView.builder(
-          itemCount: _songList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return SearchSongItem(
-              index: index,
-              content: _songList[index],
-            );
-          },
-        ),
-      ),
+            },
+          ),
+          controller: _refreshController,
+          onLoading: _onLoading,
+          header: WaterDropHeader(),
+          child: _getListViewContent(context)),
     );
+  }
+
+  playAtIndex(Song.Content content) async {
+    // 是否是第一次播放
+    if (_openState) {
+    } else {
+      _openState = true;
+      List<DataList> list = [];
+      _songList.forEach((song) {
+        List<Ar> arList = [];
+        song.ar.forEach((ar) {
+          arList.add(new Ar(ar.id, ar.name, ar.picUrl, ar.platform));
+        });
+        Al al =
+            new Al(song.al.id, song.al.name, song.al.picUrl, song.al.platform);
+        list.add(new DataList(song.name, song.id, arList, al, song.mvId,
+            song.trackNo, song.platform, song.duration, song.aId));
+      });
+      context.read<PlaylistManage>().setPlaylist(list);
+      await AudioInstance().initPlaylist(_audioPlaylist);
+    }
+    final idxSong = context
+        .read<PlaylistManage>()
+        .playlist
+        .indexWhere((song) => content.id == song.id);
+    print(content.name);
+    print(idxSong);
+    await AudioInstance().playlistPlayAtIndex(idxSong);
+  }
+
+  Widget _getListViewContent(context) {
+    Widget widget;
+
+    if (_songList.length != 0 ||
+        _albumList.length != 0 ||
+        _singerList.length != 0 ||
+        _playList.length != 0) {
+      switch (searchType) {
+        case SearchType.SONG:
+          widget = ListView.builder(
+            itemCount: _songList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return GestureDetector(
+                onTap: () => playAtIndex(_songList[index]),
+                child: SearchSongItem(
+                  index: index,
+                  content: _songList[index],
+                ),
+              );
+            },
+          );
+          break;
+        case SearchType.ALBUM:
+          widget = GridView.builder(
+            itemCount: _albumList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return SearchAlbumItem(
+                index: index,
+                content: _albumList[index],
+              );
+            },
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 0.0,
+              crossAxisSpacing: 0.0,
+              childAspectRatio: 1.0,
+            ),
+          );
+          break;
+        case SearchType.SINGER:
+          widget = GridView.builder(
+            itemCount: _singerList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return SearchSingerItem(
+                index: index,
+                content: _singerList[index],
+              );
+            },
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 0.0,
+              crossAxisSpacing: 0.0,
+              childAspectRatio: 1.0,
+            ),
+          );
+          break;
+        case SearchType.PLAYLIST:
+          widget = ListView.builder(
+            itemCount: _playList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return SearchPlaylistItem(
+                index: index,
+                content: _playList[index],
+              );
+            },
+          );
+          break;
+        default:
+          widget = Container();
+      }
+    } else {
+      TextStyle _style = TextStyle(
+          fontSize: 16, color: Colors.white, fontWeight: FontWeight.w500);
+      widget = Center(
+        child: Text(
+          '空空如也~',
+          style: _style,
+        ),
+      );
+    }
+    return widget;
   }
 }

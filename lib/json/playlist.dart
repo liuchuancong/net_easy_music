@@ -1,29 +1,28 @@
-import 'package:json_annotation/json_annotation.dart'; 
-  
+import 'package:json_annotation/json_annotation.dart';
+
 part 'playlist.g.dart';
 
-
 @JsonSerializable()
-  class Playlist extends Object {
-
+class Playlist extends Object {
   @JsonKey(name: 'result')
   int result;
 
   @JsonKey(name: 'data')
   Data data;
 
-  Playlist(this.result,this.data,);
+  Playlist(
+    this.result,
+    this.data,
+  );
 
-  factory Playlist.fromJson(Map<String, dynamic> srcJson) => _$PlaylistFromJson(srcJson);
+  factory Playlist.fromJson(Map<String, dynamic> srcJson) =>
+      _$PlaylistFromJson(srcJson);
 
   Map<String, dynamic> toJson() => _$PlaylistToJson(this);
-
 }
 
-  
 @JsonSerializable()
-  class Data extends Object {
-
+class Data extends Object {
   @JsonKey(name: 'creator')
   Creator creator;
 
@@ -57,18 +56,28 @@ part 'playlist.g.dart';
   @JsonKey(name: 'platform')
   String platform;
 
-  Data(this.creator,this.id,this.userId,this.name,this.cover,this.trackCount,this.playCount,this.desc,this.list,this.listId,this.platform,);
+  Data(
+    this.creator,
+    this.id,
+    this.userId,
+    this.name,
+    this.cover,
+    this.trackCount,
+    this.playCount,
+    this.desc,
+    this.list,
+    this.listId,
+    this.platform,
+  );
 
-  factory Data.fromJson(Map<String, dynamic> srcJson) => _$DataFromJson(srcJson);
+  factory Data.fromJson(Map<String, dynamic> srcJson) =>
+      _$DataFromJson(srcJson);
 
   Map<String, dynamic> toJson() => _$DataToJson(this);
-
 }
 
-  
 @JsonSerializable()
-  class Creator extends Object {
-
+class Creator extends Object {
   @JsonKey(name: 'nick')
   String nick;
 
@@ -81,23 +90,26 @@ part 'playlist.g.dart';
   @JsonKey(name: 'platform')
   String platform;
 
-  Creator(this.nick,this.id,this.avatar,this.platform,);
+  Creator(
+    this.nick,
+    this.id,
+    this.avatar,
+    this.platform,
+  );
 
-  factory Creator.fromJson(Map<String, dynamic> srcJson) => _$CreatorFromJson(srcJson);
+  factory Creator.fromJson(Map<String, dynamic> srcJson) =>
+      _$CreatorFromJson(srcJson);
 
   Map<String, dynamic> toJson() => _$CreatorToJson(this);
-
 }
 
-  
 @JsonSerializable()
-  class DataList extends Object {
-
+class DataList extends Object {
   @JsonKey(name: 'name')
   String name;
 
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'ar')
   List<Ar> ar;
@@ -106,34 +118,42 @@ part 'playlist.g.dart';
   Al al;
 
   @JsonKey(name: 'mvId')
-  int mvId;
+  dynamic mvId;
 
   @JsonKey(name: 'trackNo')
-  int trackNo;
+  dynamic trackNo;
 
   @JsonKey(name: 'platform')
-  String platform;
+  dynamic platform;
 
   @JsonKey(name: 'duration')
   int duration;
 
   @JsonKey(name: 'aId')
-  String aId;
+  dynamic aId;
 
-  DataList(this.name,this.id,this.ar,this.al,this.mvId,this.trackNo,this.platform,this.duration,this.aId,);
+  DataList(
+    this.name,
+    this.id,
+    this.ar,
+    this.al,
+    this.mvId,
+    this.trackNo,
+    this.platform,
+    this.duration,
+    this.aId,
+  );
 
-  factory DataList.fromJson(Map<String, dynamic> srcJson) => _$DataListFromJson(srcJson);
+  factory DataList.fromJson(Map<String, dynamic> srcJson) =>
+      _$DataListFromJson(srcJson);
 
   Map<String, dynamic> toJson() => _$DataListToJson(this);
-
 }
 
-  
 @JsonSerializable()
-  class Ar extends Object {
-
+class Ar extends Object {
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'name')
   String name;
@@ -144,20 +164,22 @@ part 'playlist.g.dart';
   @JsonKey(name: 'platform')
   String platform;
 
-  Ar(this.id,this.name,this.picUrl,this.platform,);
+  Ar(
+    this.id,
+    this.name,
+    this.picUrl,
+    this.platform,
+  );
 
   factory Ar.fromJson(Map<String, dynamic> srcJson) => _$ArFromJson(srcJson);
 
   Map<String, dynamic> toJson() => _$ArToJson(this);
-
 }
 
-  
 @JsonSerializable()
-  class Al extends Object {
-
+class Al extends Object {
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'name')
   String name;
@@ -168,12 +190,14 @@ part 'playlist.g.dart';
   @JsonKey(name: 'platform')
   String platform;
 
-  Al(this.id,this.name,this.picUrl,this.platform,);
+  Al(
+    this.id,
+    this.name,
+    this.picUrl,
+    this.platform,
+  );
 
   factory Al.fromJson(Map<String, dynamic> srcJson) => _$AlFromJson(srcJson);
 
   Map<String, dynamic> toJson() => _$AlToJson(this);
-
 }
-
-  

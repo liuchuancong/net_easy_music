@@ -48,7 +48,7 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
 Content _$ContentFromJson(Map<String, dynamic> json) {
   return Content(
     json['name'] as String,
-    json['id'] as int,
+    json['id'],
     json['mid'] as String,
     json['picUrl'] as String,
     json['publishTime'] as int,
