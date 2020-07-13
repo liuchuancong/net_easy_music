@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:net_easy_music/api/apiList.dart';
+import 'package:net_easy_music/common/common.dart';
 import 'package:net_easy_music/components/blurBackground.dart';
 import 'package:net_easy_music/components/customIcon.dart';
 import 'package:net_easy_music/json/playlist.dart';
@@ -20,6 +21,7 @@ import 'package:net_easy_music/page/search/search_playlist_item.dart';
 import 'package:net_easy_music/page/search/search_singer_item.dart';
 import 'package:net_easy_music/page/search/search_song_item.dart';
 import 'package:net_easy_music/page/search/search_view.dart';
+import 'package:net_easy_music/page/search_album/search_album.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
 import 'package:net_easy_music/plugin/httpManage.dart';
 import 'package:net_easy_music/type/platform_type.dart';
@@ -314,7 +316,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   _getListContent(Response response) async {
-    if(response.toString().contains('<!DOCTYPE')){
+    if (response.toString().contains('<!DOCTYPE')) {
       _refreshController.loadNoData();
       return;
     }
@@ -626,9 +628,12 @@ class _SearchPageState extends State<SearchPage> {
           widget = GridView.builder(
             itemCount: _albumList.length,
             itemBuilder: (BuildContext context, int index) {
-              return SearchAlbumItem(
-                index: index,
-                content: _albumList[index],
+              return GestureDetector(
+                onTap: () => openRoute(page: SearchAlbum(), context: context),
+                child: SearchAlbumItem(
+                  index: index,
+                  content: _albumList[index],
+                ),
               );
             },
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
