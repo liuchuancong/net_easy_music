@@ -1,5 +1,6 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:net_easy_music/settings/setting.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AudioInstance {
@@ -100,8 +101,12 @@ class AudioInstance {
       stop();
     }
     try {
-      await assetsAudioPlayer.open(playlist,
-          showNotification: true, autoStart: false);
+      await assetsAudioPlayer.open(
+        playlist,
+        loopMode: LoopMode.playlist,
+        showNotification: true,
+        autoStart: false,
+      );
     } catch (t) {
       //mp3 unreachable
     }
@@ -167,11 +172,11 @@ class AudioInstance {
   }
 
   Future<void> next() async {
-    await assetsAudioPlayer.next();
+    await assetsAudioPlayer.next(keepLoopMode: true);
   }
 
   Future<void> prev() async {
-    await assetsAudioPlayer.previous();
+    await assetsAudioPlayer.previous(keepLoopMode: true);
   }
 
   Future<void> dispose() async {

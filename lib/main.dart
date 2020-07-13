@@ -6,6 +6,7 @@ import 'package:net_easy_music/utils/cookie.dart';
 import 'package:provider/provider.dart';
 
 import 'model/drawer_manage.dart';
+import 'model/playModel_manage.dart';
 import 'model/playlist_manage.dart';
 import 'page/my_home_page/my_home_page.dart';
 
@@ -23,6 +24,7 @@ void main() {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => DrawerManage()),
     ChangeNotifierProvider(create: (_) => PlaylistManage()),
+    ChangeNotifierProvider(create: (_) => PlayModelManage()),
   ], child: MyApp()));
 }
 

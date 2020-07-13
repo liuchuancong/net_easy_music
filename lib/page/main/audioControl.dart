@@ -1,12 +1,14 @@
 import 'dart:async';
 
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:net_easy_music/components/controlButton.dart';
+import 'package:net_easy_music/model/playModel_manage.dart';
 import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/page/play_record/playRecord.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
-import 'package:net_easy_music/utils/cookie.dart';
+import 'package:net_easy_music/type/play_model.dart';
 import 'package:net_easy_music/utils/paletteColor.dart';
 import 'package:provider/provider.dart';
 import '../../extension/duration.dart';
@@ -244,9 +246,50 @@ class _AudioControlState extends State<AudioControl> {
   }
 
   Future<void> _playSong() async {
-    print('expiresTime ${cookieMange.expiresTime}');
-    print('cookieInitTime ${cookieMange.cookieInitTime}');
     await AudioInstance().play();
+  }
+
+  _changePlayModel(PlayModel playModel) async{
+    PlayModel _updatePlayModel;
+    print(AudioInstance().assetsAudioPlayer.loopMode.value);
+    switch (playModel) {
+      case PlayModel.PLAYLIST:
+        _updatePlayModel = PlayModel.SINGLE;
+       await AudioInstance().assetsAudioPlayer.setLoopMode(LoopMode.single);
+        break;
+      case PlayModel.SINGLE:
+        _updatePlayModel = PlayModel.RANDOM;
+        await AudioInstance().assetsAudioPlayer.setLoopMode(LoopMode.none
+        );
+        break;
+      case PlayModel.RANDOM:
+        _updatePlayModel = PlayModel.PLAYLIST;
+        await AudioInstance().assetsAudioPlayer.setLoopMode(LoopMode.playlist);
+        break;
+    }
+    context.read<PlayModelManage>().setPlayModel(_updatePlayModel);
+    setState(() {});
+  }
+
+  Widget _buildPlayModel(context) {
+    int codePoint;
+    PlayModel _playModel =
+        Provider.of<PlayModelManage>(context, listen: false).playModel;
+    switch (_playModel) {
+      case PlayModel.PLAYLIST:
+        codePoint = 0xE602;
+        break;
+      case PlayModel.SINGLE:
+        codePoint = 0xE66D;
+        break;
+      case PlayModel.RANDOM:
+        codePoint = 0xE7B8;
+        break;
+    }
+    return ControlButton(
+      codePoint: codePoint,
+      onControlTaped: () => _changePlayModel(_playModel),
+    );
   }
 
   Widget _buildPlayControl() {
@@ -255,9 +298,8 @@ class _AudioControlState extends State<AudioControl> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          ControlButton(
-            codePoint: 0xE602,
-          ),
+          //播放模式
+          _buildPlayModel(context),
           ControlButton(
             codePoint: 0xE9D3,
             onControlTaped: () => AudioInstance().prev(),
