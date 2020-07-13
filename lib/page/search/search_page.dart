@@ -7,8 +7,6 @@ import 'package:net_easy_music/api/apiList.dart';
 import 'package:net_easy_music/components/blurBackground.dart';
 import 'package:net_easy_music/components/customIcon.dart';
 import 'package:net_easy_music/json/playlist.dart';
-import 'package:net_easy_music/json/searchType/search_type_with_song.dart'
-    as Song;
 import 'package:net_easy_music/json/searchType/search_type_with_album.dart'
     as Album;
 import 'package:net_easy_music/json/searchType/search_type_with_singer.dart'
@@ -42,7 +40,7 @@ class _SearchPageState extends State<SearchPage> {
   SearchType searchType = SearchType.SONG;
   int pageNo = 1;
   TextEditingController _editingController;
-  List<Song.Content> _songList = [];
+  List _songList = [];
   List<Album.Content> _albumList = [];
   List<Singer.Content> _singerList = [];
   List<Playlist.Content> _playList = [];
@@ -103,12 +101,11 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
-  _getAudioPlaylist(List<Song.Content> songArr) async {
-    List<Song.Content> unFoundList = [];
-    List<Song.Content> reMoveList = [];
+  _getAudioPlaylist(List songArr) async {
+    List unFoundList = [];
+    List reMoveList = [];
     List<audioPlayer.Audio> _audios = [];
     if (platformMusic == PlatformMusic.NETEASE) {
-      String platform = '163';
       int baseLoop = 50;
       List<int> ids = [];
       songArr.forEach((song) {
@@ -129,7 +126,7 @@ class _SearchPageState extends State<SearchPage> {
         final Response response = await HttpManager().get(apiList['BATCH_URL'],
             data: {
               'id': idString,
-              '_p': platform,
+              '_p': getPlatformPara(),
               '_t': Duration().inMicroseconds
             });
         final String songsurl = jsonEncode(response.data['data']);
@@ -215,12 +212,22 @@ class _SearchPageState extends State<SearchPage> {
       reMoveList.forEach((song) {
         songArr.remove(song);
       });
+    } else if (platformMusic == PlatformMusic.MIGU) {
+      songArr.forEach((song) {
+        String url = song.url;
+        if (url != null) {
+          audioPlayer.Audio _audio = _getAudio(song, url);
+          _audioPlaylist.add(_audio);
+          _songList.add(song);
+        } else {
+          reMoveList.add(song);
+        }
+      });
     }
 
     //这些歌曲都是找不到的 不过几乎没有
     //reMoveList
     // 将新增加的歌曲加入播放列表
-    setState(() {});
     if (_openState) {
       List<DataList> list = [];
       songArr.forEach((song) {
@@ -230,15 +237,28 @@ class _SearchPageState extends State<SearchPage> {
         });
         Al al =
             new Al(song.al.id, song.al.name, song.al.picUrl, song.al.platform);
-        list.add(new DataList(song.name, song.id, arList, al, song.mvId,
-            song.trackNo, song.platform, song.duration, song.aId));
+        if (platformMusic == PlatformMusic.MIGU) {
+          list.add(new DataList(song.name, song.id, arList, al, song.mvId, null,
+              song.platform, null, song.aId));
+        } else {
+          list.add(new DataList(
+              song.name,
+              song.id,
+              arList,
+              al,
+              song.mvId,
+              song.trackNo ?? song.trackNo,
+              song.platform,
+              song.duration ?? song.duration,
+              song.aId));
+        }
       });
       context.read<PlaylistManage>().addAll(list);
       await AudioInstance().addAll(_audios);
     }
   }
 
-  audioPlayer.Audio _getAudio(Song.Content song, url) {
+  audioPlayer.Audio _getAudio(song, url) {
     String _artist;
     song.ar.forEach((ar) {
       if (_artist == null) {
@@ -294,17 +314,18 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   _getListContent(Response response) async {
+    if(response.toString().contains('<!DOCTYPE')){
+      _refreshController.loadNoData();
+      return;
+    }
     Map songsMap = json.decode(response.toString());
     if (songsMap['result'] == 100) {
       pageNo++;
     }
     switch (searchType) {
       case SearchType.SONG:
-        List<Song.Content> _songs = SearchViewBuild().buildBySong(
-          context,
-          response,
-          _refreshController,
-        );
+        List _songs = SearchViewBuild()
+            .buildBySong(context, response, _refreshController, platformMusic);
         await _getAudioPlaylist(_songs);
         break;
       case SearchType.ALBUM:
@@ -313,6 +334,7 @@ class _SearchPageState extends State<SearchPage> {
           response,
           _refreshController,
         ));
+
         break;
       case SearchType.SINGER:
         _singerList.addAll(SearchViewBuild().buildBySinger(
@@ -329,6 +351,7 @@ class _SearchPageState extends State<SearchPage> {
         ));
         break;
     }
+    setState(() {});
   }
 
   String getPlatformPara() {
@@ -545,7 +568,8 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  playAtIndex(Song.Content content) async {
+  playAtIndex(content) async {
+    final playManage = context.read<PlaylistManage>();
     // 是否是第一次播放
     if (_openState) {
     } else {
@@ -558,18 +582,21 @@ class _SearchPageState extends State<SearchPage> {
         });
         Al al =
             new Al(song.al.id, song.al.name, song.al.picUrl, song.al.platform);
-        list.add(new DataList(song.name, song.id, arList, al, song.mvId,
-            song.trackNo, song.platform, song.duration, song.aId));
+        if (platformMusic == PlatformMusic.MIGU) {
+          list.add(new DataList(song.name, song.id, arList, al, song.mvId, null,
+              song.platform, null, song.aId));
+        } else {
+          list.add(new DataList(song.name, song.id, arList, al, song.mvId,
+              song.trackNo, song.platform, song.duration, song.aId));
+        }
       });
-      context.read<PlaylistManage>().setPlaylist(list);
+      playManage.setPlaylist(list);
       await AudioInstance().initPlaylist(_audioPlaylist);
     }
-    final idxSong = context
-        .read<PlaylistManage>()
-        .playlist
-        .indexWhere((song) => content.id == song.id);
-    print(content.name);
-    print(idxSong);
+    final idxSong =
+        playManage.playlist.indexWhere((song) => content.id == song.id);
+    playManage.setPlayIndex(idxSong);
+    playManage.setCurrentPlay(playManage.playlist[idxSong]);
     await AudioInstance().playlistPlayAtIndex(idxSong);
   }
 
@@ -634,6 +661,7 @@ class _SearchPageState extends State<SearchPage> {
             itemCount: _playList.length,
             itemBuilder: (BuildContext context, int index) {
               return SearchPlaylistItem(
+                platform: platformMusic,
                 index: index,
                 content: _playList[index],
               );

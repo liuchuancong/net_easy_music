@@ -112,6 +112,7 @@ class _CurrentRecordState extends State<CurrentRecord> {
                 .setCurrentPlay(music);
             int idx =
                 Provider.of<PlaylistManage>(context, listen: false).playlist.indexOf(music);
+                context.read<PlaylistManage>().setPlayIndex(idx);
             AudioInstance().playlistPlayAtIndex(idx);
           }
         },

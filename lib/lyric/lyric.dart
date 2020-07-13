@@ -4,9 +4,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:net_easy_music/lyric/utils.dart';
-
-const _enable_paint_debug = false;
-
 class Lyric extends StatefulWidget {
   Lyric({
     @required this.lyric,
@@ -364,42 +361,32 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
 
     _highlightPainter.layout(); //layout with unbound width
 
-    double lineWidth = _highlightPainter.width;
-    double gradientWidth = _highlightPainter.width * lineGradientPercent;
-    final double lineHeight = _highlightPainter.height;
+    // double lineWidth = _highlightPainter.width;
+    // double gradientWidth = _highlightPainter.width * lineGradientPercent;
+    // final double lineHeight = _highlightPainter.height;
 
     _highlightPainter.layout(maxWidth: size.width);
 
-    final highlightRegion = Path();
-    double lineDy = 0;
-    while (gradientWidth > 0) {
-      double dx = 0;
-      if (lineWidth < size.width) {
-        dx = (size.width - lineWidth) / 2;
-      }
-      highlightRegion.addRect(
-          Rect.fromLTWH(0, dy + lineDy, dx + gradientWidth, lineHeight));
-      lineWidth -= _highlightPainter.width;
-      gradientWidth -= _highlightPainter.width;
-      lineDy += lineHeight;
-    }
+    // final highlightRegion = Path();
+    // double lineDy = 0;
+    // while (gradientWidth > 0) {
+    //   double dx = 0;
+    //   if (lineWidth < size.width) {
+    //     dx = (size.width - lineWidth) / 2;
+    //   }
+    //   highlightRegion.addRect(
+    //       Rect.fromLTWH(0, dy + lineDy, dx + gradientWidth, lineHeight));
+    //   lineWidth -= _highlightPainter.width;
+    //   gradientWidth -= _highlightPainter.width;
+    //   lineDy += lineHeight;
+    // }
 
     canvas.save();
-    canvas.clipPath(highlightRegion);
+    //去掉滚动
+    // canvas.clipPath(highlightRegion);
 
     drawLine(canvas, _highlightPainter, dy, size);
     canvas.restore();
-
-    assert(() {
-      if (_enable_paint_debug) {
-        final painter = Paint()
-          ..color = Colors.black
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1;
-        canvas.drawPath(highlightRegion, painter);
-      }
-      return true;
-    }());
   }
 
   ///draw a lyric line

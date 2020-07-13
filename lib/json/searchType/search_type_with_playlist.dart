@@ -68,7 +68,7 @@ class Content extends Object {
   Creator creator;
 
   @JsonKey(name: 'userId')
-  int userId;
+  dynamic userId;
 
   @JsonKey(name: 'cover')
   String cover;
@@ -113,7 +113,7 @@ class Creator extends Object {
   String nick;
 
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'platform')
   String platform;

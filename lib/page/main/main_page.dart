@@ -297,7 +297,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _currentPlaySubscription =
         AudioInstance().assetsAudioPlayer.current.listen((playingAudio) {
       _albumController.reset();
-      _getSonglyric(playingAudio.index);
+      _getSonglyric(playingAudio.playlist.currentIndex);
     });
   }
 
@@ -388,7 +388,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         String songsurl = jsonEncode(response.data['data']);
         unFoundList.getRange(baseLoop * i, loopEnd).forEach((song) {
           String url = jsonDecode(songsurl)[song.id.toString()]['url'];
-          print(url);
           if (url != null) {
             audioPlayer.Audio _audio = _getAudio(song, url);
             context.read<PlaylistManage>().playlist.add(song);
@@ -428,13 +427,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _getSonglyric(int index) async {
+    final play = context.read<PlaylistManage>();
+    print('play.playlist[play.playIndex].id ${play.playlist[play.playIndex].id}');
+    print('play.playlist[play.playIndex].platform ${play.playlist[play.playIndex].platform}');
     lyricContent = null;
     lyricTranslateContent = null;
     try {
       final Response response =
           await HttpManager().get(apiList['LYRIC'], data: {
-        'id': context.read<PlaylistManage>().playlist[index].id,
-        '_p': context.read<PlaylistManage>().playlist[index].platform,
+        'id': play.playlist[index].id,
+        '_p': play.playlist[index].platform,
         '_t': Duration().inMicroseconds.toString()
       });
       Map songsMap = json.decode(response.toString());

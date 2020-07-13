@@ -1,8 +1,6 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:net_easy_music/json/searchType/search_type_with_song.dart'
-    as Song;
 import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/page/search/wave.dart';
 import 'package:net_easy_music/page/search/wave_config.dart';
@@ -11,7 +9,7 @@ import 'package:provider/provider.dart';
 
 class SearchSongItem extends StatefulWidget {
   final int index;
-  final Song.Content content;
+  final  content;
 
   const SearchSongItem({Key key, @required this.index, @required this.content})
       : super(key: key);

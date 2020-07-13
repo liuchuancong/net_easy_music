@@ -2,13 +2,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:net_easy_music/json/searchType/search_type_with_playlist.dart'
     as Playlist;
+import 'package:net_easy_music/type/platform_type.dart';
 
 class SearchPlaylistItem extends StatefulWidget {
   final int index;
   final Playlist.Content content;
-
+  final PlatformMusic platform;
   const SearchPlaylistItem(
-      {Key key, @required this.index, @required this.content})
+      {Key key, @required this.index, @required this.content, this.platform})
       : super(key: key);
   @override
   _SearchPlaylistItemState createState() => _SearchPlaylistItemState();
@@ -78,6 +79,7 @@ class _SearchPlaylistItemState extends State<SearchPlaylistItem> {
                         margin: EdgeInsets.only(top: 10, left: 20),
                         child: Row(
                           children: <Widget>[
+                            if(widget.platform != PlatformMusic.MIGU)
                             Expanded(
                               child: Container(
                                 child: Text(
@@ -89,6 +91,7 @@ class _SearchPlaylistItemState extends State<SearchPlaylistItem> {
                                 ),
                               ),
                             ),
+                            if(widget.platform != PlatformMusic.MIGU)
                             SizedBox(
                               width: 10,
                             ),

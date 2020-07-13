@@ -59,7 +59,7 @@ class Data extends Object {
 @JsonSerializable()
 class Content extends Object {
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'name')
   String name;
