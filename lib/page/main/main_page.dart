@@ -63,15 +63,18 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         child: new Stack(
           children: <Widget>[
             BlurBackground(
-              imageUrl: currentPlay.al.picUrl + '?param=1440y1440',
+              imageUrl: currentPlay != null
+                  ? currentPlay.al.picUrl + '?param=1440y1440'
+                  : null,
             ),
             Column(
               children: <Widget>[
                 _buildTopBar(context),
                 _buildCenterSection(context),
-                AudioControl(
-                  showLyric: _showLyric,
-                )
+                if (currentPlay != null)
+                  AudioControl(
+                    showLyric: _showLyric,
+                  )
               ],
             ),
             // AudioControl()
@@ -241,6 +244,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               return Stack(
                 alignment: Alignment.center,
                 children: <Widget>[
+                  if(_currentPlay!=null)
                   Transform(
                     alignment: Alignment.center,
                     transform:
@@ -428,8 +432,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   Future<void> _getSonglyric(int index) async {
     final play = context.read<PlaylistManage>();
-    print('play.playlist[play.playIndex].id ${play.playlist[play.playIndex].id}');
-    print('play.playlist[play.playIndex].platform ${play.playlist[play.playIndex].platform}');
+    print(
+        'play.playlist[play.playIndex].id ${play.playlist[play.playIndex].id}');
+    print(
+        'play.playlist[play.playIndex].platform ${play.playlist[play.playIndex].platform}');
     lyricContent = null;
     lyricTranslateContent = null;
     try {
