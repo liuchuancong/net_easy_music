@@ -1,29 +1,28 @@
-import 'package:json_annotation/json_annotation.dart'; 
-  
-part 'search_type_with_song_qq.g.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'search_song_qq.g.dart';
 
 @JsonSerializable()
-  class SearchTypeWithSongQq extends Object {
-
+class SearchSongQq extends Object {
   @JsonKey(name: 'result')
   int result;
 
   @JsonKey(name: 'data')
   Data data;
 
-  SearchTypeWithSongQq(this.result,this.data,);
+  SearchSongQq(
+    this.result,
+    this.data,
+  );
 
-  factory SearchTypeWithSongQq.fromJson(Map<String, dynamic> srcJson) => _$SearchTypeWithSongQqFromJson(srcJson);
+  factory SearchSongQq.fromJson(Map<String, dynamic> srcJson) =>
+      _$SearchSongQqFromJson(srcJson);
 
-  Map<String, dynamic> toJson() => _$SearchTypeWithSongQqToJson(this);
-
+  Map<String, dynamic> toJson() => _$SearchSongQqToJson(this);
 }
 
-  
 @JsonSerializable()
-  class Data extends Object {
-
+class Data extends Object {
   @JsonKey(name: 'list')
   List<Content> content;
 
@@ -42,18 +41,23 @@ part 'search_type_with_song_qq.g.dart';
   @JsonKey(name: 'type')
   String type;
 
-  Data(this.content,this.pageNo,this.pageSize,this.total,this.key,this.type,);
+  Data(
+    this.content,
+    this.pageNo,
+    this.pageSize,
+    this.total,
+    this.key,
+    this.type,
+  );
 
-  factory Data.fromJson(Map<String, dynamic> srcJson) => _$DataFromJson(srcJson);
+  factory Data.fromJson(Map<String, dynamic> srcJson) =>
+      _$DataFromJson(srcJson);
 
   Map<String, dynamic> toJson() => _$DataToJson(this);
-
 }
 
-  
 @JsonSerializable()
-  class Content extends Object {
-
+class Content extends Object {
   @JsonKey(name: 'name')
   String name;
 
@@ -96,18 +100,31 @@ part 'search_type_with_song_qq.g.dart';
   @JsonKey(name: 'aId')
   String aId;
 
-  Content(this.name,this.id,this.songid,this.mid,this.mediaId,this.ar,this.mvId,this.al,this.trackNo,this.duration,this.publishTime,this.platform,this.qqId,this.aId,);
+  Content(
+    this.name,
+    this.id,
+    this.songid,
+    this.mid,
+    this.mediaId,
+    this.ar,
+    this.mvId,
+    this.al,
+    this.trackNo,
+    this.duration,
+    this.publishTime,
+    this.platform,
+    this.qqId,
+    this.aId,
+  );
 
-  factory Content.fromJson(Map<String, dynamic> srcJson) => _$ContentFromJson(srcJson);
+  factory Content.fromJson(Map<String, dynamic> srcJson) =>
+      _$ContentFromJson(srcJson);
 
   Map<String, dynamic> toJson() => _$ContentToJson(this);
-
 }
 
-  
 @JsonSerializable()
-  class Ar extends Object {
-
+class Ar extends Object {
   @JsonKey(name: 'id')
   int id;
 
@@ -123,18 +140,21 @@ part 'search_type_with_song_qq.g.dart';
   @JsonKey(name: 'platform')
   String platform;
 
-  Ar(this.id,this.name,this.mid,this.picUrl,this.platform,);
+  Ar(
+    this.id,
+    this.name,
+    this.mid,
+    this.picUrl,
+    this.platform,
+  );
 
   factory Ar.fromJson(Map<String, dynamic> srcJson) => _$ArFromJson(srcJson);
 
   Map<String, dynamic> toJson() => _$ArToJson(this);
-
 }
 
-  
 @JsonSerializable()
-  class Al extends Object {
-
+class Al extends Object {
   @JsonKey(name: 'name')
   String name;
 
@@ -150,12 +170,15 @@ part 'search_type_with_song_qq.g.dart';
   @JsonKey(name: 'platform')
   String platform;
 
-  Al(this.name,this.id,this.mid,this.picUrl,this.platform,);
+  Al(
+    this.name,
+    this.id,
+    this.mid,
+    this.picUrl,
+    this.platform,
+  );
 
   factory Al.fromJson(Map<String, dynamic> srcJson) => _$AlFromJson(srcJson);
 
   Map<String, dynamic> toJson() => _$AlToJson(this);
-
 }
-
-  

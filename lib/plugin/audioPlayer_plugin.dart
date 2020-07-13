@@ -1,6 +1,5 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:net_easy_music/settings/setting.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AudioInstance {

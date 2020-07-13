@@ -71,7 +71,7 @@ Map<String, dynamic> _$ContentToJson(Content instance) => <String, dynamic>{
 
 Ar _$ArFromJson(Map<String, dynamic> json) {
   return Ar(
-    json['id'] as dynamic,
+    json['id'],
     json['name'] as String,
     json['mid'] as String,
     json['picUrl'] as String,

@@ -1,14 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'search_type_with_song_migu.dart';
+part of 'search_song_netease.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-SearchTypeWithSongMigu _$SearchTypeWithSongMiguFromJson(
-    Map<String, dynamic> json) {
-  return SearchTypeWithSongMigu(
+SearchSongNetease _$SearchSongNeteaseFromJson(Map<String, dynamic> json) {
+  return SearchSongNetease(
     json['result'] as int,
     json['data'] == null
         ? null
@@ -16,8 +15,7 @@ SearchTypeWithSongMigu _$SearchTypeWithSongMiguFromJson(
   );
 }
 
-Map<String, dynamic> _$SearchTypeWithSongMiguToJson(
-        SearchTypeWithSongMigu instance) =>
+Map<String, dynamic> _$SearchSongNeteaseToJson(SearchSongNetease instance) =>
     <String, dynamic>{
       'result': instance.result,
       'data': instance.data,
@@ -49,16 +47,16 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
 Content _$ContentFromJson(Map<String, dynamic> json) {
   return Content(
     json['name'] as String,
-    json['id'] as String,
+    json['id'] as int,
     (json['ar'] as List)
         ?.map((e) => e == null ? null : Ar.fromJson(e as Map<String, dynamic>))
         ?.toList(),
     json['al'] == null ? null : Al.fromJson(json['al'] as Map<String, dynamic>),
-    json['cId'] as String,
-    json['mvId'] as String,
+    json['publishTime'] as int,
+    json['mvId'] as int,
+    json['trackNo'] as int,
     json['platform'] as String,
-    json['url'] as String,
-    json['miguId'] as String,
+    json['duration'] as int,
     json['aId'] as String,
   );
 }
@@ -68,17 +66,17 @@ Map<String, dynamic> _$ContentToJson(Content instance) => <String, dynamic>{
       'id': instance.id,
       'ar': instance.ar,
       'al': instance.al,
-      'cId': instance.cId,
+      'publishTime': instance.publishTime,
       'mvId': instance.mvId,
+      'trackNo': instance.trackNo,
       'platform': instance.platform,
-      'url': instance.url,
-      'miguId': instance.miguId,
+      'duration': instance.duration,
       'aId': instance.aId,
     };
 
 Ar _$ArFromJson(Map<String, dynamic> json) {
   return Ar(
-    json['id'] as String,
+    json['id'] as int,
     json['name'] as String,
     json['picUrl'] as String,
     json['platform'] as String,
@@ -94,7 +92,7 @@ Map<String, dynamic> _$ArToJson(Ar instance) => <String, dynamic>{
 
 Al _$AlFromJson(Map<String, dynamic> json) {
   return Al(
-    json['id'] as String,
+    json['id'] as int,
     json['name'] as String,
     json['picUrl'] as String,
     json['platform'] as String,

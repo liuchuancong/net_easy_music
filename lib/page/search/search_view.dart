@@ -1,11 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:net_easy_music/json/search_type_with_song_migu/search_type_with_song_migu.dart'
-    as migu;
-import 'package:net_easy_music/json/search_type_with_song_netease/search_type_with_song_netease.dart'
-    as netease;
-import 'package:net_easy_music/json/search_type_with_song_qq/search_type_with_song_qq.dart'
-    as qq;
+import 'package:net_easy_music/json/searchSong/search_song_migu/search_song_migu.dart';
+import 'package:net_easy_music/json/searchSong/search_song_netease/search_song_netease.dart';
+import 'package:net_easy_music/json/searchSong/search_song_qq/search_song_qq.dart';
+
 import 'package:net_easy_music/type/platform_type.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:net_easy_music/json/searchType/search_type_with_album.dart'
@@ -21,15 +19,15 @@ class SearchViewBuild {
     var data;
     var content = [];
     if (platformMusic == PlatformMusic.NETEASE) {
-      data = netease.SearchTypeWithSongNetease.fromJson(response.data);
+      data = SearchSongNetease.fromJson(response.data);
     }
     if (platformMusic == PlatformMusic.QQ) {
-      data = qq.SearchTypeWithSongQq.fromJson(response.data);
+      data = SearchSongQq.fromJson(response.data);
     }
     if (platformMusic == PlatformMusic.MIGU) {
-      data = migu.SearchTypeWithSongMigu.fromJson(response.data);
+      data = SearchSongMigu.fromJson(response.data);
     }
-    if (data!=null && data.result == 100) {
+    if (data != null && data.result == 100) {
       refreshController.loadComplete();
       if (data.data.content.length > 0) {
         content = data.data.content;

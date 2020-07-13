@@ -1,13 +1,14 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'search_type_with_song_qq.dart';
+part of 'search_type_with_playlist_migu.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-SearchTypeWithSongQq _$SearchTypeWithSongQqFromJson(Map<String, dynamic> json) {
-  return SearchTypeWithSongQq(
+SearchTypeWithPlaylistMigu _$SearchTypeWithPlaylistMiguFromJson(
+    Map<String, dynamic> json) {
+  return SearchTypeWithPlaylistMigu(
     json['result'] as int,
     json['data'] == null
         ? null
@@ -15,8 +16,8 @@ SearchTypeWithSongQq _$SearchTypeWithSongQqFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$SearchTypeWithSongQqToJson(
-        SearchTypeWithSongQq instance) =>
+Map<String, dynamic> _$SearchTypeWithPlaylistMiguToJson(
+        SearchTypeWithPlaylistMigu instance) =>
     <String, dynamic>{
       'result': instance.result,
       'data': instance.data,
@@ -24,44 +25,65 @@ Map<String, dynamic> _$SearchTypeWithSongQqToJson(
 
 Data _$DataFromJson(Map<String, dynamic> json) {
   return Data(
+    json['id'] as String,
+    json['userId'] as String,
+    json['name'] as String,
+    json['creator'] == null
+        ? null
+        : Creator.fromJson(json['creator'] as Map<String, dynamic>),
+    json['cover'] as String,
+    json['trackCount'] as String,
+    json['playCount'] as int,
+    json['desc'] as String,
     (json['list'] as List)
         ?.map((e) =>
             e == null ? null : Content.fromJson(e as Map<String, dynamic>))
         ?.toList(),
-    json['pageNo'] as String,
-    json['pageSize'] as int,
-    json['total'] as int,
-    json['key'] as String,
-    json['type'] as String,
+    json['listId'] as String,
+    json['platform'] as String,
   );
 }
 
 Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
+      'id': instance.id,
+      'userId': instance.userId,
+      'name': instance.name,
+      'creator': instance.creator,
+      'cover': instance.cover,
+      'trackCount': instance.trackCount,
+      'playCount': instance.playCount,
+      'desc': instance.desc,
       'list': instance.content,
-      'pageNo': instance.pageNo,
-      'pageSize': instance.pageSize,
-      'total': instance.total,
-      'key': instance.key,
-      'type': instance.type,
+      'listId': instance.listId,
+      'platform': instance.platform,
+    };
+
+Creator _$CreatorFromJson(Map<String, dynamic> json) {
+  return Creator(
+    json['nick'] as String,
+    json['id'] as String,
+    json['platform'] as String,
+  );
+}
+
+Map<String, dynamic> _$CreatorToJson(Creator instance) => <String, dynamic>{
+      'nick': instance.nick,
+      'id': instance.id,
+      'platform': instance.platform,
     };
 
 Content _$ContentFromJson(Map<String, dynamic> json) {
   return Content(
     json['name'] as String,
     json['id'] as String,
-    json['songid'] as int,
-    json['mid'] as String,
-    json['mediaId'] as String,
     (json['ar'] as List)
         ?.map((e) => e == null ? null : Ar.fromJson(e as Map<String, dynamic>))
         ?.toList(),
-    json['mvId'] as String,
     json['al'] == null ? null : Al.fromJson(json['al'] as Map<String, dynamic>),
-    json['trackNo'] as int,
-    json['duration'] as int,
-    json['publishTime'] as int,
+    json['cId'] as String,
     json['platform'] as String,
-    json['qqId'] as String,
+    json['url'] as String,
+    json['miguId'] as String,
     json['aId'] as String,
   );
 }
@@ -69,25 +91,19 @@ Content _$ContentFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$ContentToJson(Content instance) => <String, dynamic>{
       'name': instance.name,
       'id': instance.id,
-      'songid': instance.songid,
-      'mid': instance.mid,
-      'mediaId': instance.mediaId,
       'ar': instance.ar,
-      'mvId': instance.mvId,
       'al': instance.al,
-      'trackNo': instance.trackNo,
-      'duration': instance.duration,
-      'publishTime': instance.publishTime,
+      'cId': instance.cId,
       'platform': instance.platform,
-      'qqId': instance.qqId,
+      'url': instance.url,
+      'miguId': instance.miguId,
       'aId': instance.aId,
     };
 
 Ar _$ArFromJson(Map<String, dynamic> json) {
   return Ar(
-    json['id'] as int,
+    json['id'] as String,
     json['name'] as String,
-    json['mid'] as String,
     json['picUrl'] as String,
     json['platform'] as String,
   );
@@ -96,25 +112,22 @@ Ar _$ArFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$ArToJson(Ar instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'mid': instance.mid,
       'picUrl': instance.picUrl,
       'platform': instance.platform,
     };
 
 Al _$AlFromJson(Map<String, dynamic> json) {
   return Al(
+    json['id'] as String,
     json['name'] as String,
-    json['id'] as int,
-    json['mid'] as String,
     json['picUrl'] as String,
     json['platform'] as String,
   );
 }
 
 Map<String, dynamic> _$AlToJson(Al instance) => <String, dynamic>{
-      'name': instance.name,
       'id': instance.id,
-      'mid': instance.mid,
+      'name': instance.name,
       'picUrl': instance.picUrl,
       'platform': instance.platform,
     };
