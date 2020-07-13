@@ -258,8 +258,8 @@ class _AudioControlState extends State<AudioControl> {
        await AudioInstance().assetsAudioPlayer.setLoopMode(LoopMode.single);
         break;
       case PlayModel.SINGLE:
-        _updatePlayModel = PlayModel.RANDOM;
-        await AudioInstance().assetsAudioPlayer.setLoopMode(LoopMode.none
+        _updatePlayModel = PlayModel.PLAYLIST;
+        await AudioInstance().assetsAudioPlayer.setLoopMode(LoopMode.playlist
         );
         break;
       case PlayModel.RANDOM:
