@@ -629,7 +629,11 @@ class _SearchPageState extends State<SearchPage> {
             itemCount: _albumList.length,
             itemBuilder: (BuildContext context, int index) {
               return GestureDetector(
-                onTap: () => openRoute(page: SearchAlbum(), context: context),
+                onTap: () => openRoute(page: SearchAlbum(
+                  platform: getPlatformPara(),
+                  platformMusic: platformMusic,
+                  id: _albumList[index].id,
+                ), context: context),
                 child: SearchAlbumItem(
                   index: index,
                   content: _albumList[index],

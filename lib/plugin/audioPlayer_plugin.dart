@@ -1,5 +1,4 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AudioInstance {
@@ -109,14 +108,6 @@ class AudioInstance {
     } catch (t) {
       //mp3 unreachable
     }
-  }
-
-  void showCenterShortToast() {
-    Fluttertoast.showToast(
-        msg: "请先添加歌曲",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1);
   }
 
   updateMetas(song) {

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:net_easy_music/utils/cookie.dart';
+import 'package:net_easy_music/settings/global.dart';
 import 'package:provider/provider.dart';
 
 import 'model/drawer_manage.dart';
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'NetEasyMusic',
       theme: ThemeData(

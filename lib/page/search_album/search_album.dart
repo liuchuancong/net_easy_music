@@ -1,14 +1,53 @@
+import 'dart:ui';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:net_easy_music/api/apiList.dart';
 import 'package:net_easy_music/components/blurBackground.dart';
+import 'package:net_easy_music/json/searchAlbum/search_album_netease/search_album_netease.dart';
 import 'package:net_easy_music/model/playlist_manage.dart';
+import 'package:net_easy_music/plugin/httpManage.dart';
+import 'package:net_easy_music/type/platform_type.dart';
 import 'package:provider/provider.dart';
 
 class SearchAlbum extends StatefulWidget {
+  final String platform;
+  final dynamic id;
+  final PlatformMusic platformMusic;
+  const SearchAlbum(
+      {Key key,
+      @required this.platform,
+      @required this.id,
+      @required this.platformMusic})
+      : super(key: key);
   @override
   _SearchAlbumState createState() => _SearchAlbumState();
 }
 
 class _SearchAlbumState extends State<SearchAlbum> {
+  ScrollController _controller = ScrollController();
+  String albumDes = '';
+  final maxExtent = 230.0;
+  double currentExtent = 0.0;
+  @override
+  void initState() {
+    _getAlbumInfomation();
+    _controller.addListener(() {
+      setState(() {
+        currentExtent = maxExtent - _controller.offset;
+        if (currentExtent < 0) currentExtent = 0.0;
+        if (currentExtent > maxExtent) currentExtent = maxExtent;
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentPlay = Provider.of<PlaylistManage>(context).currentPlay;
@@ -20,16 +59,36 @@ class _SearchAlbumState extends State<SearchAlbum> {
             BlurBackground(
               imageUrl: currentPlay.al.picUrl + '?param=1440y1440',
             ),
-            Column(
-              children: <Widget>[
-                _buildTopBar(context),
-                Expanded(
-                    child: Container(
-                  padding: EdgeInsets.all(16.0),
-                  child: ListView(
-                    children: _buildDesc(context),
+            CustomScrollView(
+              slivers: <Widget>[
+                SliverAppBar(
+                  pinned: true,
+                  expandedHeight: maxExtent,
+                  flexibleSpace: FlexibleSpaceBar.createSettings(
+                    currentExtent: currentExtent,
+                    minExtent: 0,
+                    maxExtent: maxExtent,
+                    child: FlexibleSpaceBar(
+                      background: Placeholder(),
+                      collapseMode: CollapseMode.pin,
+                      // titlePadding: EdgeInsetsDirectional.only(start: 50,top: 20),
+                      title: new Text(
+                        'Some Text Here',
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                    ),
                   ),
-                ))
+                ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (_, index) => ListTile(
+                      title: Text(
+                        "Index: $index",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                )
               ],
             ),
           ],
@@ -38,49 +97,40 @@ class _SearchAlbumState extends State<SearchAlbum> {
     );
   }
 
+  _getAlbumInfomation() async {
+    // 获取专辑信息
+    Map<String, dynamic> searchMap = {
+      '_p': widget.platform,
+      'id': widget.id,
+      '_t': Duration().inMicroseconds.toString()
+    };
+
+    final Response response =
+        await HttpManager().get(apiList['ALBUM'], data: searchMap);
+    //平台不同分开解析
+    if (widget.platformMusic == PlatformMusic.NETEASE) {
+      SearchAlbumNetease searchAlbumNetease =
+          SearchAlbumNetease.fromJson(response.data);
+      albumDes = searchAlbumNetease.data.desc;
+      setState(() {});
+    }
+  }
+
   List<Widget> _buildDesc(BuildContext context) {
-    var a =
-        '林俊杰 JJ Lin  实验专辑 「和自己对话 From M.E. To Myself」  城市的人口密度是 拥挤 身边的情感交流是 疏离 梦想的葬身之地是 遗忘  首创 实验概念 3D "声"历其境 「戴上耳机，我们一起经历 爱」  「一年前的今天我开始了一个全新的旅程，我下了一个决心 - 卸下了对于流行音乐的包袱，重新定义我与自己的音乐。 我问了自己一个问题：音乐制作的过程，还有什么是我还没尝试过的？  于是我开始了这个计划。我希望把我内心深处许多说不出来的感触，用琴声，用旋律，用自己的声音表达出来。希望这样的举动，能够让我看到一个从来未见过的自己，跟那个一直躲在自己心里某处的自己 聊聊天，谈谈心。  我发现，我很久没有好好 跟自己对话 了。」～～JJ LIN  这是JJ在这张专辑之初，写给自己一封信的open。  这一年，不管这世界，或我、或他，都发生了很多事，当我们只顾着在日复一日，匆忙的穿梭中，满足着以为的期待，却愈是不安，愈是陷入挣扎，然而，能够拉自己一把的，只有来自内心的呼唤！与生俱来的宝藏！  生活的难，不是和别人相处，而是跟自己相处。 愈是难，愈是安静 停下来，听听真实的声音，内在的害怕，会离场，外界的魔鬼，会远离。  by your side 一起走，打开耳朵，聆听心的声音 用力的唤醒，从遥远遥远的远方，把自己带回来，和自己和好， 和自己对话。。。  「安静，才能听见自己」  他，打破框架，重新定义「林俊杰JJ LIN」和他最爱的音乐。  撼动全球乐坛！世界首张360度流行音乐专辑 划时代新概念！金曲歌王林俊杰3D感动献声 透过耳机感受！彷佛他就在你身边真实演唱  这是一张充满突破性的专辑，也是华语流行乐坛的全新里程碑，更是独步全球的惊人创举！华语金曲天王林俊杰突破自我，首张实验概念专辑，以「Dummy Head」假人头录音的方式，完整呈现录音场景，戴上耳机，跟林俊杰一同来到壮阔的歌剧院、充满私密感的家中、走在喧闹的大街上、充满观众的 Live House、跳上一台疾驶的车子、来到充满虫鸣鸟叫的营火海边…林俊杰就在你的身边！充满立体感的声音体验，彷佛身处一部音乐电影中，随着一首又一首的歌曲，一步一步走进林俊杰的音乐世界中！  走出录音室，在房间、街头等地方录制专辑早已不新奇，这次林俊杰挑战全世界首次使用，假人头录音「 Dummy Head」3D录制流行音乐专辑，戴上耳机倾听，就会360度全方位感受到人头麦克风听到的声音。例如：录音时林俊杰从人头麦克风的左边走到右边，当你戴上耳机后，就宛如感受到林俊杰从你眼前走过一般，细腻而全面的立体音场，建构出一个又一个的空间，戴上耳机，全面沉浸于这位音乐导演，这次不是用影像，是用音乐让你“声”历其境中。  「这是第一次有人将假人头录音的概念用于流行音乐上，老实说我很紧张！」出道十二年，发行过十一张专辑的林俊杰，一直保持着高能量的词曲创作与精细缜密的音乐制作，永远不安于现状的林俊杰，在每一张专辑都尝试突破进化、挑战全新领域，一次又一次征服音乐爱好者挑剔的耳朵，也就是这样的不断前进，让林俊杰稳站华语流行天王的宝座，演唱会永远一票难求，并夺得国内外无数奖项的肯定！早在发行上一张专辑「新地球」前，林俊杰就开始不断思考他在流行音乐上更多的可能性，期待下一次的突破与创造。他说：「我期待一种很真实的录音方式，让我的听众感觉他就在我身边，让他感觉我就在对他唱歌，让听众能直接听到我的声音。」这张独步全球的360度录音专辑，始于林俊杰心中想与听众更靠近的心愿，这样的心愿也促使林俊杰在创作与制作的过程中，不断深入地挖掘自己的内心，去面对很久没有面对的，心中的自己，才终于完成这一张用创作、用音乐「和自己对话」的专辑。 即使在华语流行已经是指标性的人物，他仍然不忘突破自我、追求概念更加完整、声音表现更创新的作品。这次，不是用影像，而是戴上耳机，用声音让你“声”历其境。采用假人头「Dummy Head」录音，3D真实环绕制作，零距离体验，首创听觉3D的音乐聆听。独特的录音方式让这张作品充满生命力，彷佛所有真实乐器都在你我眼前发声，所有声音的方位、远近就像是亲临现场，完美呈现所有真实细节。  从心出发 林俊杰以爱撰写深刻情感 六大场景 建构一趟音乐的奇幻旅程 “声”历其境 用耳朵听一场音乐电影  当你戴上耳机听着音乐，隔绝所有外界传来的声音时，你是否有一种感觉，彷佛这世界只剩下你与你自己，耳机传来的音乐是别人的声音，但更是你自己心中，和自己对话的声音。  这是一张必须用耳机聆听的专辑，林俊杰希望透过这样的设计，能让听众沈浸在音乐世界中，透过音乐，一次又一次的跟内心的自己对话。而这不只是一个希望听者和自己对话的过程，在整张专辑创作与制作的过程中，林俊杰更是彻底剖开内心，与心中的自己睽违多年地好好深聊，和自己和好。面对自己之后，林俊杰的音乐世界更加宽广了，在这次的专辑中，他写出了对世界的感动，面对了爱情的遗憾，找回了失去的友情，遇见了音乐的梦想，唱出了情人间的温柔，在完成专辑后，林俊杰也感动的说，这绝对是一趟永难忘怀的音乐旅程。  「和自己对话」整张专辑，也确实宛如一趟精彩的旅程。  从序曲开始，我们听到各种乐器的调音声、说话声、测试声，是一个充满期待感的启程。而随着钢琴声清脆的贯穿，进入格局磅礴的主打歌「不为谁而做的歌」，是林俊杰献给这世界最真挚而温暖的情感，身处新加坡滨海艺术中心歌剧院场景中，听者彷佛坐在观众席的一处感受这特别的音场回响，直到第三首歌曲「关键词」结束。  从音乐厅回家后，林俊杰对着枕边的人轻轻唱出「只要有你的地方」，无限的温柔就在听者耳边响起。而早晨起床后，在刷牙与洗脸的声音中，林俊杰开心地用「弹唱」对枕边人告白，大量的互动与位置转变，是专辑中最能深刻感受360度录音的歌曲。接着，钥匙与开门声传来，带来一场从踏出家门开始的梦想的旅程，林俊杰的好友 Mike 张怀灏 与助理Shin阿信，一起跟他走在梦想的路上，从街道走入 Live House，大声唱出「有梦不难」的宣言！来到 Live House 后，林俊杰在听众面前，与乐团现场演出，唱着动人情歌「Too Bad」，与充满现场演奏感的「你，有没有过」，听者彷佛在现场观众之中，在台下欣赏这一场精彩的现场演出。  接着，充满空间感的一段对话响起，是林俊杰与十二年前一起为音乐梦想打拼的伙伴的聊天，十二年没有见面的他们，曾经没日没夜的练习、表演、驻唱。一边聊着天，三人跳上一台奔驰的车子，说起十二年前对彼此的误会与后悔，终于再一起唱出十二年前一起创作的歌曲，这段过程也让林俊杰自己感动不已，睽违十二年的默契，听者彷佛一同坐在车上体会。跟着车子，来到一片虫鸣鸟叫的海边，听着营火的声音，与朋友相聚的场景，林俊杰开心地唱出「独舞」。而当曲终人散后，又一个人安静的唱着「Lier and Accuser」，献给身边的你。专辑的最后，是一片大海的浪涛声，留给与林俊杰经历这一段奇幻历程的你，一个沉静而舒服的Ending。  科技始终来自于人性，独特的录音方式是科技的运用，然而，在这张作品，每一个乐器的弹奏，都是在发声着，所有我们忘了已经多久没有去碰触的内心；所有声音的环绕，远近左右就像是你我已经多久忘了抬起头看看真实生活的周遭，林俊杰用来自心底的声音，向音乐致敬，向生活感谢，让我们勇敢地再去碰触最真实的自己。  戴上耳机，听见JJ和你内心的声音，新的声音，心的声音。  挑战音乐导演身份 林俊杰展现坚强制作功力 葛莱美得奖大师 Richard Furch 隔海精彩后制  从2年前开始研究假人头录音，他将人头取了名字，为Meta Enigma（意思是「神秘的自己」。将近一年时间都戴着超重的人头麦克风，跑遍新加坡音乐厅、海边、东区街头、宜兰郊外、表演场地等，真的把人头当作另外一半在陪伴 - 弹吉他给他听、带他去海边、在他面前刷牙，有时候，还真觉得自己有点变态。  为了呈现最完美的声音不遗余力！而这次专辑在录音与概念上的突破，也让制作人林俊杰感到很有挑战性，想到能让听者透过耳机里听到的声音，真实重现录音场景，让他兴奋不已！ 最大的挑战，就是要把人头录音的部分跟流行音乐的录音方式（比如说当有full band的时候）做巧妙的结合。虽然3D的效果需要戴耳机才能真正感受到，但他希望专辑在任何音响（包括车上）的可听度还是高的。  而曾与林俊杰合作过的葛莱美得奖大师 Richard Furch，也同样担任「和自己对话」专辑的混音工作，由于这张专辑的声音呈现特别，林俊杰必须要来回不断跟他确认混音后的状况，不能失去真实感，却又要提升聆听的感受，两人隔海用计算机实时联机，一起听档案、互相讨论修改的独特场景，也成了这专辑的一段很可爱的小插曲。  出道十二年首度下水拍摄 概念性极强视觉令人惊艳 天王天后御用摄影师邵亭魁掌镜 赞JJ水性极佳  「和自己对话」这张专辑，从录音、制作、概念都相当具有实验性，为了维持这样的实验性，企划、摄影与设计不惜开了超过十次会议，来回讨论各种深入的想象。 最终拍板定案的，是林俊杰宛如浸泡在音乐世界中一般，戴着耳机漂浮在水中的画面，为了达成这样的想象，林俊杰不惜亲自下水，浅入5到10米深的水池中，摄影师邵亭魁和团队，整副潜水配备的下水，而他却是要符合专辑的设计，穿着西装表现，一边小心让自己不要溺水，一边又要在水中做出超级困难的动作，一旁的工作人员也不禁担心着他的承受力，然而，林俊杰为了完成完美画面毫无畏惧，每次，一跳下水都是尽情的展现和挑战着所有的可能性，本来担心水底拍摄的太多不可控，需要花很长的时间去捕捉，却在他天生的好水性，释放演出，拍摄时间短短的2个小时，完成了拍摄，让摄影师邵亭魁和所有人大为赞叹，林俊杰的水性，真的很厉害！  而拍摄完水中摄影的林俊杰，说着，在水中真的有几度感觉快要溺水，有一点恐惧，但放开心中的恐惧，在水里，只有自己的世界，用全身去感受漂浮的无重力感时，发现自己身处于一个很寂静的状态中，听不到任何的喧嚣，所有的声音都远离，只听得见自己的声音，是很适合「和自己对话」的环境！没想到拍摄专辑封面的感受，如此和专辑的概念呼应。';
-
-    List<String> descArr = a.split(new RegExp('  '));
-
+    List<String> descArr = albumDes.split(new RegExp(r'/[(\r\n)\r\n]+/'));
     return descArr.map((e) {
-      var txt = e.split(' ');
+      var txt = e.split('');
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: RichText(
             text: TextSpan(
                 children: txt
                     .map((e) => TextSpan(
-                        text: e, style: TextStyle(color: Colors.white)))
+                        text: e,
+                        style: TextStyle(color: Colors.white, fontSize: 12)))
                     .toList()),
             textAlign: TextAlign.left),
       );
     }).toList();
-  }
-
-  Widget _buildTopBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              padding: const EdgeInsets.all(18.0),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          )
-        ],
-      ),
-    );
   }
 }
