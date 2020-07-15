@@ -245,7 +245,7 @@ class _AlbumListState extends State<AlbumList> {
       });
     } else if (widget.platformMusic == PlatformMusic.MIGU) {
       songArr.forEach((song) {
-        String url = song.url;
+        String url = song.ar[0].picUrl;
         if (url != null) {
           audioPlayer.Audio _audio = _getAudio(song, url);
           _audioPlaylist.add(_audio);
@@ -266,12 +266,15 @@ class _AlbumListState extends State<AlbumList> {
         song.ar.forEach((ar) {
           arList.add(new playlist.Ar(ar.id, ar.name, ar.picUrl, ar.platform));
         });
-        playlist.Al al = new playlist.Al(
-            song.al.id, song.al.name, song.al.picUrl, song.al.platform);
+
         if (widget.platformMusic == PlatformMusic.MIGU) {
+          playlist.Al al =
+              new playlist.Al(song.al.id, song.al.name, null, song.al.platform);
           list.add(new playlist.DataList(song.name, song.id, arList, al,
               song.mvId, null, song.platform, null, song.aId));
         } else {
+          playlist.Al al = new playlist.Al(
+              song.al.id, song.al.name, song.al.picUrl, song.al.platform);
           list.add(new playlist.DataList(
               song.name,
               song.id,
@@ -303,13 +306,17 @@ class _AlbumListState extends State<AlbumList> {
     audioPlayer.Audio audio = audioPlayer.Audio.network(
       url,
       metas: audioPlayer.Metas(
-        title: song.name,
-        artist: _artist,
-        album: song.al.name,
-        image: audioPlayer.MetasImage.network(
-          song.al.picUrl + '?param=1440y1440',
-        ), //can be MetasImage.network
-      ),
+          title: song.name,
+          artist: _artist,
+          album: song.al.name,
+          image: widget.platformMusic != PlatformMusic.MIGU
+              ? audioPlayer.MetasImage.network(
+                  song.al.picUrl + '?param=1440y1440',
+                )
+              : audioPlayer.MetasImage.network(
+                  url,
+                ) //can be MetasImage.network
+          ),
     );
     return audio;
   }

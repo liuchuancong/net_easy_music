@@ -28,7 +28,7 @@ class _SearchSongItemState extends State<AlbumSongItem> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Container(
-                width: MediaQuery.of(context).size.width * 0.65,
+                width: MediaQuery.of(context).size.width * 0.9,
                 child: Row(
                   children: <Widget>[
                     Container(
@@ -41,7 +41,7 @@ class _SearchSongItemState extends State<AlbumSongItem> {
                     ),
                     Container(
                       margin: EdgeInsets.only(left: 10),
-                      width: 150,
+                      width: MediaQuery.of(context).size.width * 0.7,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,

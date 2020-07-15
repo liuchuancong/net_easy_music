@@ -167,18 +167,18 @@ class AlbumHeader extends StatelessWidget {
     switch (platformMusic) {
       case PlatformMusic.NETEASE:
         if (searchAlbumNetease.data.desc != null) {
-          _desc = searchAlbumNetease.data.desc.trim();
+          _desc = searchAlbumNetease.data.desc.trim().replaceAll(new RegExp(r'/[(\r\n)\r\n]+/'), '');
         }
 
         break;
       case PlatformMusic.QQ:
         if (searchAlbumQq.data.desc != null) {
-          _desc = searchAlbumQq.data.desc.trim();
+          _desc = searchAlbumQq.data.desc.trim().replaceAll(new RegExp(r'/[(\r\n)\r\n]+/'), '');
         }
         break;
       case PlatformMusic.MIGU:
         if (searchAlbumMigu.data.desc != null) {
-          _desc = searchAlbumMigu.data.desc.trim();
+          _desc = searchAlbumMigu.data.desc.trim().replaceAll(new RegExp(r'/[(\r\n)\r\n]+/'), '');
         }
         break;
     }
