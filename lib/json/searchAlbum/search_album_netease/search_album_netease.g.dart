@@ -23,19 +23,19 @@ Map<String, dynamic> _$SearchAlbumNeteaseToJson(SearchAlbumNetease instance) =>
 
 Data _$DataFromJson(Map<String, dynamic> json) {
   return Data(
-    json['id'] as int,
+    json['id'],
     json['name'] as String,
     json['picUrl'] as String,
     json['company'] as String,
     json['platform'] as String,
     json['publishTime'] as int,
     json['cId'] as int,
-    (json['artlists'] as List)
+    (json['ar'] as List)
         ?.map((e) =>
             e == null ? null : Artlists.fromJson(e as Map<String, dynamic>))
         ?.toList(),
     json['desc'] as String,
-    (json['content'] as List)
+    (json['list'] as List)
         ?.map((e) =>
             e == null ? null : Content.fromJson(e as Map<String, dynamic>))
         ?.toList(),
@@ -50,14 +50,14 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
       'platform': instance.platform,
       'publishTime': instance.publishTime,
       'cId': instance.cId,
-      'artlists': instance.artlists,
+      'ar': instance.artlists,
       'desc': instance.desc,
-      'content': instance.content,
+      'list': instance.content,
     };
 
 Artlists _$ArtlistsFromJson(Map<String, dynamic> json) {
   return Artlists(
-    json['id'] as int,
+    json['id'],
     json['name'] as String,
     json['picUrl'] as String,
     json['platform'] as String,
@@ -74,7 +74,7 @@ Map<String, dynamic> _$ArtlistsToJson(Artlists instance) => <String, dynamic>{
 Content _$ContentFromJson(Map<String, dynamic> json) {
   return Content(
     json['name'] as String,
-    json['id'] as int,
+    json['id'],
     (json['ar'] as List)
         ?.map((e) => e == null ? null : Ar.fromJson(e as Map<String, dynamic>))
         ?.toList(),
@@ -101,7 +101,7 @@ Map<String, dynamic> _$ContentToJson(Content instance) => <String, dynamic>{
 
 Ar _$ArFromJson(Map<String, dynamic> json) {
   return Ar(
-    json['id'] as int,
+    json['id'],
     json['name'] as String,
     json['picUrl'] as String,
     json['platform'] as String,
@@ -117,7 +117,7 @@ Map<String, dynamic> _$ArToJson(Ar instance) => <String, dynamic>{
 
 Al _$AlFromJson(Map<String, dynamic> json) {
   return Al(
-    json['id'] as int,
+    json['id'],
     json['name'] as String,
     json['picUrl'] as String,
     json['platform'] as String,

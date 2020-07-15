@@ -24,7 +24,7 @@ class SearchSingerNetease extends Object {
 @JsonSerializable()
 class Data extends Object {
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'name')
   String name;

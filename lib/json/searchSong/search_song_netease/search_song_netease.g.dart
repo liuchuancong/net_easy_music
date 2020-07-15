@@ -47,7 +47,7 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
 Content _$ContentFromJson(Map<String, dynamic> json) {
   return Content(
     json['name'] as String,
-    json['id'] as int,
+    json['id'],
     (json['ar'] as List)
         ?.map((e) => e == null ? null : Ar.fromJson(e as Map<String, dynamic>))
         ?.toList(),
@@ -76,7 +76,7 @@ Map<String, dynamic> _$ContentToJson(Content instance) => <String, dynamic>{
 
 Ar _$ArFromJson(Map<String, dynamic> json) {
   return Ar(
-    json['id'] as int,
+    json['id'],
     json['name'] as String,
     json['picUrl'] as String,
     json['platform'] as String,
@@ -92,7 +92,7 @@ Map<String, dynamic> _$ArToJson(Ar instance) => <String, dynamic>{
 
 Al _$AlFromJson(Map<String, dynamic> json) {
   return Al(
-    json['id'] as int,
+    json['id'],
     json['name'] as String,
     json['picUrl'] as String,
     json['platform'] as String,

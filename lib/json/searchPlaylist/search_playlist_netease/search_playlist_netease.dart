@@ -27,7 +27,7 @@ class Data extends Object {
   Creator creator;
 
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'userId')
   int userId;
@@ -82,7 +82,7 @@ class Creator extends Object {
   String nick;
 
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'avatar')
   String avatar;
@@ -109,7 +109,7 @@ class Content extends Object {
   String name;
 
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'ar')
   List<Ar> ar;
@@ -157,7 +157,7 @@ class Content extends Object {
 @JsonSerializable()
 class Ar extends Object {
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'name')
   String name;
@@ -183,7 +183,7 @@ class Ar extends Object {
 @JsonSerializable()
 class Al extends Object {
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'name')
   String name;

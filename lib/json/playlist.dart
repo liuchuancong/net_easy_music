@@ -27,7 +27,7 @@ class Data extends Object {
   Creator creator;
 
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'userId')
   int userId;
@@ -82,7 +82,7 @@ class Creator extends Object {
   String nick;
 
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'avatar')
   String avatar;

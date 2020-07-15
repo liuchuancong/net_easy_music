@@ -24,7 +24,7 @@ class SearchAlbumNetease extends Object {
 @JsonSerializable()
 class Data extends Object {
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'name')
   String name;
@@ -44,13 +44,13 @@ class Data extends Object {
   @JsonKey(name: 'cId')
   int cId;
 
-  @JsonKey(name: 'artlists')
+  @JsonKey(name: 'ar')
   List<Artlists> artlists;
 
   @JsonKey(name: 'desc')
   String desc;
 
-  @JsonKey(name: 'content')
+  @JsonKey(name: 'list')
   List<Content> content;
 
   Data(
@@ -75,7 +75,7 @@ class Data extends Object {
 @JsonSerializable()
 class Artlists extends Object {
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'name')
   String name;
@@ -105,7 +105,7 @@ class Content extends Object {
   String name;
 
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'ar')
   List<Ar> ar;
@@ -149,7 +149,7 @@ class Content extends Object {
 @JsonSerializable()
 class Ar extends Object {
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'name')
   String name;
@@ -175,7 +175,7 @@ class Ar extends Object {
 @JsonSerializable()
 class Al extends Object {
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'name')
   String name;

@@ -27,7 +27,7 @@ class Data extends Object {
   String name;
 
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'mid')
   String mid;
@@ -173,7 +173,7 @@ class Content extends Object {
 @JsonSerializable()
 class Ar extends Object {
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'name')
   String name;
@@ -206,7 +206,7 @@ class Al extends Object {
   String name;
 
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'mid')
   String mid;

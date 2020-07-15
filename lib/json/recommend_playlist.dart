@@ -25,7 +25,7 @@ part 'recommend_playlist.g.dart';
   class Data extends Object {
 
   @JsonKey(name: 'id')
-  int id;
+  dynamic id;
 
   @JsonKey(name: 'name')
   String name;

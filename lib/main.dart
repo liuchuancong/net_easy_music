@@ -37,6 +37,13 @@ class MyApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'NetEasyMusic',
+      builder: (context, widget) {
+        return MediaQuery(
+          //设置文字大小不随系统设置改变
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 0.75),
+          child: widget,
+        );
+      },
       theme: ThemeData(
         primaryColor: Colors.black,
         visualDensity: VisualDensity.adaptivePlatformDensity,

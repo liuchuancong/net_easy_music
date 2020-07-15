@@ -47,7 +47,7 @@ class Data extends Object {
   @JsonKey(name: 'desc')
   String desc;
 
-  @JsonKey(name: 'content')
+  @JsonKey(name: 'list')
   List<Content> content;
 
   @JsonKey(name: 'listId')

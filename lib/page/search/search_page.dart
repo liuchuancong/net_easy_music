@@ -632,7 +632,8 @@ class _SearchPageState extends State<SearchPage> {
                 onTap: () => openRoute(page: SearchAlbum(
                   platform: getPlatformPara(),
                   platformMusic: platformMusic,
-                  id: _albumList[index].id,
+                  //QQ 是mid 其他的是id
+                  id: platformMusic == PlatformMusic.QQ ? _albumList[index].mid: _albumList[index].id,
                 ), context: context),
                 child: SearchAlbumItem(
                   index: index,

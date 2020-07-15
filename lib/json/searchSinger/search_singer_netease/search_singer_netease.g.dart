@@ -24,7 +24,7 @@ Map<String, dynamic> _$SearchSingerNeteaseToJson(
 
 Data _$DataFromJson(Map<String, dynamic> json) {
   return Data(
-    json['id'] as int,
+    json['id'],
     json['name'] as String,
     json['picUrl'] as String,
     (json['alias'] as List)?.map((e) => e as String)?.toList(),

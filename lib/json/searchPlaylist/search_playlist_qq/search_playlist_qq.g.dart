@@ -24,7 +24,7 @@ Map<String, dynamic> _$SearchPlaylistQqToJson(SearchPlaylistQq instance) =>
 Data _$DataFromJson(Map<String, dynamic> json) {
   return Data(
     json['name'] as String,
-    json['id'] as int,
+    json['id'],
     json['creator'] == null
         ? null
         : Creator.fromJson(json['creator'] as Map<String, dynamic>),
@@ -106,7 +106,7 @@ Map<String, dynamic> _$ContentToJson(Content instance) => <String, dynamic>{
 
 Ar _$ArFromJson(Map<String, dynamic> json) {
   return Ar(
-    json['id'] as int,
+    json['id'],
     json['name'] as String,
     json['mid'] as String,
     json['picUrl'] as String,
@@ -125,7 +125,7 @@ Map<String, dynamic> _$ArToJson(Ar instance) => <String, dynamic>{
 Al _$AlFromJson(Map<String, dynamic> json) {
   return Al(
     json['name'] as String,
-    json['id'] as int,
+    json['id'],
     json['mid'] as String,
     json['picUrl'] as String,
     json['desc'] as String,

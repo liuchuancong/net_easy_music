@@ -35,10 +35,10 @@ class Data extends Object {
   @JsonKey(name: 'publishTime')
   int publishTime;
 
-  @JsonKey(name: 'artlists')
+  @JsonKey(name: 'ar')
   List<Artlists> artlists;
 
-  @JsonKey(name: 'content')
+  @JsonKey(name: 'list')
   List<Content> content;
 
   @JsonKey(name: 'desc')

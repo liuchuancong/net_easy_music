@@ -27,11 +27,11 @@ Data _$DataFromJson(Map<String, dynamic> json) {
     json['name'] as String,
     json['picUrl'] as String,
     json['publishTime'] as int,
-    (json['artlists'] as List)
+    (json['ar'] as List)
         ?.map((e) =>
             e == null ? null : Artlists.fromJson(e as Map<String, dynamic>))
         ?.toList(),
-    (json['content'] as List)
+    (json['list'] as List)
         ?.map((e) =>
             e == null ? null : Content.fromJson(e as Map<String, dynamic>))
         ?.toList(),
@@ -46,8 +46,8 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
       'name': instance.name,
       'picUrl': instance.picUrl,
       'publishTime': instance.publishTime,
-      'artlists': instance.artlists,
-      'content': instance.content,
+      'ar': instance.artlists,
+      'list': instance.content,
       'desc': instance.desc,
       'company': instance.company,
       'platform': instance.platform,

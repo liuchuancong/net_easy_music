@@ -33,7 +33,7 @@ Data _$DataFromJson(Map<String, dynamic> json) {
     json['trackCount'] as String,
     json['playCount'] as int,
     json['desc'] as String,
-    (json['content'] as List)
+    (json['list'] as List)
         ?.map((e) =>
             e == null ? null : Content.fromJson(e as Map<String, dynamic>))
         ?.toList(),
@@ -51,7 +51,7 @@ Map<String, dynamic> _$DataToJson(Data instance) => <String, dynamic>{
       'trackCount': instance.trackCount,
       'playCount': instance.playCount,
       'desc': instance.desc,
-      'content': instance.content,
+      'list': instance.content,
       'listId': instance.listId,
       'platform': instance.platform,
     };

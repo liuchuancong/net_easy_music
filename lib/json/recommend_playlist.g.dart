@@ -24,7 +24,7 @@ Map<String, dynamic> _$RecommendPlaylistToJson(RecommendPlaylist instance) =>
 
 Data _$DataFromJson(Map<String, dynamic> json) {
   return Data(
-    json['id'] as int,
+    json['id'],
     json['name'] as String,
     json['cover'] as String,
     json['trackCount'] as int,
