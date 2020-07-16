@@ -1,19 +1,12 @@
 import 'dart:async';
-import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:marquee/marquee.dart';
 import 'package:net_easy_music/components/controlButton.dart';
-import 'package:net_easy_music/model/playModel_manage.dart';
 import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/page/play_record/playRecord.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
-import 'package:net_easy_music/plugin/flutterToastManage.dart';
-import 'package:net_easy_music/type/play_model.dart';
-import 'package:net_easy_music/utils/paletteColor.dart';
-import 'package:net_easy_music/utils/view.dart';
 import 'package:provider/provider.dart';
 import '../extension/duration.dart';
 import 'package:assets_audio_player/assets_audio_player.dart' as audioPlayer;
@@ -28,19 +21,15 @@ class BottomControllerBar extends StatefulWidget {
 class _MyPageWithAudioState extends State<BottomControllerBar> {
   String _currentPosition = "00:00";
   String _totalDuration = '00:00';
-  double _totalSeconds = 238.0;
-  double _currentSeconds = 0.0;
   StreamSubscription _onReadyToPlaySubscription;
   StreamSubscription _currentPositionSubscription;
   StreamSubscription _currentPlaySubscription;
   int playIndex = 0;
-  Color _seekBarcolor = Colors.white;
   @override
   void initState() {
     readyPlaySubScription();
     currentPositionSubScription();
     currentPlaySubScription();
-    _getSeekBarColor();
     super.initState();
   }
 
@@ -59,7 +48,6 @@ class _MyPageWithAudioState extends State<BottomControllerBar> {
         setState(() {
           _currentPosition = "${Duration().mmSSFormat}";
           _totalDuration = event.duration.mmSSFormat;
-          _totalSeconds = event.duration.inSeconds.toDouble();
         });
       }
     });
@@ -71,7 +59,6 @@ class _MyPageWithAudioState extends State<BottomControllerBar> {
       if (event != null) {
         setState(() {
           _currentPosition = "${event.mmSSFormat}";
-          _currentSeconds = event.inSeconds.toDouble();
         });
       }
     });
@@ -87,17 +74,11 @@ class _MyPageWithAudioState extends State<BottomControllerBar> {
           playIndex = event.current.index;
           context.read<PlaylistManage>().setCurrentPlay(
               context.read<PlaylistManage>().playlist[playIndex]);
-          _getSeekBarColor();
         }
       }
     });
   }
 
-  _getSeekBarColor() async {
-    String url = context.read<PlaylistManage>().currentPlay.al.picUrl;
-    _seekBarcolor = await PaletteColor().getColor(imageUrl: url);
-    setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
