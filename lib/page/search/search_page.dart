@@ -61,6 +61,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     final currentPlay = Provider.of<PlaylistManage>(context).currentPlay;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       resizeToAvoidBottomPadding: false,
       body: SafeArea(
         child: new Stack(
@@ -125,12 +126,12 @@ class _SearchPageState extends State<SearchPage> {
           idString = ids.getRange(baseLoop * i, (1 + i) * baseLoop).join(',');
           loopEnd = (1 + i) * baseLoop;
         }
-        final Response response = await HttpManager().get(apiList['BATCH_URL'],
-            data: {
-              'id': idString,
-              '_p': getPlatformPara(),
-              '_t': Duration().inMicroseconds
-            });
+        final Response response = await HttpManager(context)
+            .get(apiList['BATCH_URL'], data: {
+          'id': idString,
+          '_p': getPlatformPara(),
+          '_t': Duration().inMicroseconds
+        });
         final String songsurl = jsonEncode(response.data['data']);
 
         songArr.getRange(baseLoop * i, loopEnd).forEach((song) {
@@ -173,7 +174,7 @@ class _SearchPageState extends State<SearchPage> {
           });
           loopEnd = (1 + i) * baseLoop;
         }
-        final Response response = await HttpManager()
+        final Response response = await HttpManager(context)
             .post(apiList['QQ_SONG_FINDS'], data: {'data': findByQQ});
         if (response.data['result'] == 100) {
           String songsurl = jsonEncode(response.data['data']);
@@ -196,7 +197,7 @@ class _SearchPageState extends State<SearchPage> {
         findByQQ[song.id.toString()] =
             '${song.name}' + ' ' + '${song.ar.map((a) => a.name).join(' ')}';
       });
-      final Response response = await HttpManager()
+      final Response response = await HttpManager(context)
           .post(apiList['QQ_SONG_FINDS'], data: {'data': findByQQ});
       if (response.data['result'] == 100) {
         String songsurl = jsonEncode(response.data['data']);
@@ -311,7 +312,10 @@ class _SearchPageState extends State<SearchPage> {
     };
 
     final Response response =
-        await HttpManager().get(apiList['SEARCH'], data: searchMap);
+        await HttpManager(context).get(apiList['SEARCH'], data: searchMap);
+    if (response == null) {
+      return;
+    }
     await _getListContent(response);
   }
 
@@ -394,28 +398,10 @@ class _SearchPageState extends State<SearchPage> {
   searchConditions() {}
 
   Widget _buildTopBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              padding: const EdgeInsets.all(18.0),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          )
-        ],
-      ),
-    );
+    return AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: BackButton());
   }
 
   Widget _buildTextFiled(BuildContext context) {
@@ -629,12 +615,16 @@ class _SearchPageState extends State<SearchPage> {
             itemCount: _albumList.length,
             itemBuilder: (BuildContext context, int index) {
               return GestureDetector(
-                onTap: () => openRoute(page: SearchAlbum(
-                  platform: getPlatformPara(),
-                  platformMusic: platformMusic,
-                  //QQ 是mid 其他的是id
-                  id: platformMusic == PlatformMusic.QQ ? _albumList[index].mid: _albumList[index].id,
-                ), context: context),
+                onTap: () => openRoute(
+                    page: SearchAlbum(
+                      platform: getPlatformPara(),
+                      platformMusic: platformMusic,
+                      //QQ 是mid 其他的是id
+                      id: platformMusic == PlatformMusic.QQ
+                          ? _albumList[index].mid
+                          : _albumList[index].id,
+                    ),
+                    context: context),
                 child: SearchAlbumItem(
                   index: index,
                   content: _albumList[index],

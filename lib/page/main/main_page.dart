@@ -57,6 +57,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final currentPlay = Provider.of<PlaylistManage>(context).currentPlay;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       key: _scaffoldKey,
       drawer: MyDrawer(callback: _onDrawerOpenOrClose),
       body: SafeArea(
@@ -85,28 +86,20 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildTopBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              padding: const EdgeInsets.all(18.0),
-              onPressed: () {
-                _scaffoldKey.currentState.openDrawer();
-              },
-              icon: Icon(
-                Icons.menu,
-                color: Provider.of<DrawerManage>(context).isOpen
-                    ? Colors.transparent
-                    : Colors.white,
-                size: 20,
-              ),
-            ),
-          )
-        ],
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      leading: IconButton(
+        icon: Icon(
+          Icons.menu,
+          color: Provider.of<DrawerManage>(context).isOpen
+              ? Colors.transparent
+              : Colors.white,
+          size: 20,
+        ),
+        onPressed: () {
+          _scaffoldKey.currentState.openDrawer();
+        },
       ),
     );
   }
@@ -244,41 +237,41 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               return Stack(
                 alignment: Alignment.center,
                 children: <Widget>[
-                  if(_currentPlay!=null)
-                  Transform(
-                    alignment: Alignment.center,
-                    transform:
-                        Matrix4.rotationZ(-_albumController.value * 2 * pi),
-                    child: GestureDetector(
-                      onTap: _setLyricState,
-                      child: Container(
-                          width: expandedSize * 0.8,
-                          height: expandedSize * 0.8,
-                          child: new Center(
-                              child: Container(
-                            width: expandedSize * 0.65,
-                            height: expandedSize * 0.65,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(200),
-                              child: _currentPlay.al.picUrl != null
-                                  ? new CachedNetworkImage(
-                                      imageUrl: _currentPlay.al.picUrl +
-                                          '?param=1440y1440',
-                                      fit: BoxFit.cover,
-                                      errorWidget: (context, url, error) =>
-                                          new Image.asset(
+                  if (_currentPlay != null)
+                    Transform(
+                      alignment: Alignment.center,
+                      transform:
+                          Matrix4.rotationZ(-_albumController.value * 2 * pi),
+                      child: GestureDetector(
+                        onTap: _setLyricState,
+                        child: Container(
+                            width: expandedSize * 0.8,
+                            height: expandedSize * 0.8,
+                            child: new Center(
+                                child: Container(
+                              width: expandedSize * 0.65,
+                              height: expandedSize * 0.65,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(200),
+                                child: _currentPlay.al.picUrl != null
+                                    ? new CachedNetworkImage(
+                                        imageUrl: _currentPlay.al.picUrl +
+                                            '?param=1440y1440',
+                                        fit: BoxFit.cover,
+                                        errorWidget: (context, url, error) =>
+                                            new Image.asset(
+                                          'assets/music2.jpg',
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : new Image.asset(
                                         'assets/music2.jpg',
                                         fit: BoxFit.cover,
                                       ),
-                                    )
-                                  : new Image.asset(
-                                      'assets/music2.jpg',
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                          ))),
+                              ),
+                            ))),
+                      ),
                     ),
-                  ),
                 ],
               );
             });
@@ -306,7 +299,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   getRecommendPlaylist() async {
-    final Response response = await HttpManager()
+    final Response response = await HttpManager(context)
         .get(apiList['RECOMMEND_PLAYLIST'], data: {'login': 0, '_p': 163});
     final _playlist = RecommendPlaylist.fromJson(response.data);
     if (_playlist.result == 100) {
@@ -315,7 +308,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   getPlaylist(RecommendPlaylist playlist) async {
-    final Response response = await HttpManager().get(apiList['PLAYLIST'],
+    final Response response = await HttpManager(context).get(
+        apiList['PLAYLIST'],
         data: {'id': playlist.data[0].id, '_p': playlist.data[0].platform});
     final _playlist = Playlist.fromJson(response.data);
     if (_playlist.result == 100) {
@@ -346,12 +340,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         idString = ids.getRange(baseLoop * i, (1 + i) * baseLoop).join(',');
         loopEnd = (1 + i) * baseLoop;
       }
-      final Response response = await HttpManager().get(apiList['BATCH_URL'],
-          data: {
-            'id': idString,
-            '_p': platform,
-            '_t': Duration().inMicroseconds
-          });
+      final Response response = await HttpManager(context)
+          .get(apiList['BATCH_URL'], data: {
+        'id': idString,
+        '_p': platform,
+        '_t': Duration().inMicroseconds
+      });
       final String songsurl = jsonEncode(response.data['data']);
 
       list.getRange(baseLoop * i, loopEnd).forEach((song) {
@@ -386,7 +380,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         });
         loopEnd = (1 + i) * baseLoop;
       }
-      final Response response = await HttpManager()
+      final Response response = await HttpManager(context)
           .post(apiList['QQ_SONG_FINDS'], data: {'data': findByQQ});
       if (response.data['result'] == 100) {
         String songsurl = jsonEncode(response.data['data']);
@@ -440,7 +434,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     lyricTranslateContent = null;
     try {
       final Response response =
-          await HttpManager().get(apiList['LYRIC'], data: {
+          await HttpManager(context).get(apiList['LYRIC'], data: {
         'id': play.playlist[index].id,
         '_p': play.playlist[index].platform,
         '_t': Duration().inMicroseconds.toString()
@@ -470,7 +464,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   Future<String> getSongNewPath() async {
     String path;
-    final Response response = await HttpManager().get(apiList['SONG_URL'],
+    final Response response = await HttpManager(context).get(
+        apiList['SONG_URL'],
         data: {'id': context.read<PlaylistManage>().currentPlay.id});
     Map songsMap = json.decode(response.toString());
     if (songsMap['code'] == 200) {

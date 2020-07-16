@@ -1,6 +1,9 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:net_easy_music/utils/cookie.dart';
+
+import 'flutterToastManage.dart';
 
 class HttpManager {
   //一个人工智能回答的免费API
@@ -12,11 +15,13 @@ class HttpManager {
   static HttpManager _instance;
   Dio _dio;
   BaseOptions _options;
+  BuildContext _context;
+  HttpManager._internal(BuildContext context) {
+    this._context = context;
+  }
   //单例模式，只创建一次实例
-  static HttpManager getInstance() {
-    if (null == _instance) {
-      _instance = new HttpManager();
-    }
+  static HttpManager getInstance(BuildContext context) {
+    _instance = HttpManager._internal(context);
     return _instance;
   }
 
@@ -35,7 +40,7 @@ class HttpManager {
   }
 
   //构造函数
-  HttpManager() {
+  HttpManager(context) {
     _options = new BaseOptions(
         baseUrl: baseUrl,
         //连接时间为5秒
@@ -71,6 +76,7 @@ class HttpManager {
     //   client.badCertificateCallback =
     //       (X509Certificate cert, String host, int port) => true;
     // };
+    this._context = context;
   }
 
   //get请求方法
@@ -136,17 +142,17 @@ class HttpManager {
 
   void formatError(DioError e) {
     if (e.type == DioErrorType.CONNECT_TIMEOUT) {
-      print("连接超时");
+      FlutterToastManage().showToast("连接超时", this._context);
     } else if (e.type == DioErrorType.SEND_TIMEOUT) {
-      print("请求超时");
+      FlutterToastManage().showToast("请求超时", this._context);
     } else if (e.type == DioErrorType.RECEIVE_TIMEOUT) {
-      print("响应超时");
+      FlutterToastManage().showToast("响应超时", this._context);
     } else if (e.type == DioErrorType.RESPONSE) {
-      print("出现异常");
+      FlutterToastManage().showToast("出现异常", this._context);
     } else if (e.type == DioErrorType.CANCEL) {
-      print("请求取消");
+      FlutterToastManage().showToast("请求取消", this._context);
     } else {
-      print("未知错误");
+      FlutterToastManage().showToast("未知错误", this._context);
     }
   }
 }

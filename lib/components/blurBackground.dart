@@ -11,7 +11,7 @@ class BlurBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      fit: StackFit.expand,
+       fit: StackFit.passthrough,
       children: <Widget>[
         Image(
           image: imageUrl != null

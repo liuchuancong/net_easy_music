@@ -35,7 +35,7 @@ class AlbumList extends StatefulWidget {
 }
 
 class _AlbumListState extends State<AlbumList> {
-  List _songList = [];
+  List<AlbumSong> _songList = [];
   audioPlayer.Playlist _audioPlaylist = new audioPlayer.Playlist();
   //需要一个状态来控制是否是第一次初始化播放列表,后续只需要往播放列表里面添加
   bool _openState = false;
@@ -47,24 +47,17 @@ class _AlbumListState extends State<AlbumList> {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)),
-      child: Container(
-        padding: EdgeInsets.only(top: 25),
-        color: Colors.white,
-        child: ListView.builder(
-          itemCount: _songList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return GestureDetector(
-              onTap: () => playAtIndex(_songList[index]),
-              child: AlbumSongItem(
-                index: index,
-                content: _songList[index],
-              ),
-            );
-          },
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) => GestureDetector(
+          onTap: () => playAtIndex(_songList[index]),
+          child: AlbumSongItem(
+            index: index,
+            canPlay: _songList[index].canPlay,
+            content: _songList[index].song,
+          ),
         ),
+        childCount: _songList.length,
       ),
     );
   }
@@ -99,40 +92,59 @@ class _AlbumListState extends State<AlbumList> {
     return _platform;
   }
 
-  playAtIndex(content) async {
+  playAtIndex(AlbumSong content) async {
     final playManage = context.read<PlaylistManage>();
+    if (!content.canPlay) return;
     // 是否是第一次播放
     if (_openState) {
     } else {
       _openState = true;
       List<playlist.DataList> list = [];
-      _songList.forEach((song) {
+      _songList.forEach((AlbumSong albumSong) {
         List<playlist.Ar> arList = [];
-        song.ar.forEach((ar) {
+        albumSong.song.ar.forEach((ar) {
           arList.add(new playlist.Ar(ar.id, ar.name, ar.picUrl, ar.platform));
         });
         playlist.Al al = new playlist.Al(
-            song.al.id, song.al.name, song.al.picUrl, song.al.platform);
+            albumSong.song.al.id,
+            albumSong.song.al.name,
+            albumSong.song.al.picUrl,
+            albumSong.song.al.platform);
         if (widget.platformMusic == PlatformMusic.MIGU) {
-          list.add(new playlist.DataList(song.name, song.id, arList, al,
-              song.mvId, null, song.platform, null, song.aId));
+          list.add(new playlist.DataList(
+              albumSong.song.name,
+              albumSong.song.id,
+              arList,
+              al,
+              albumSong.song.mvId,
+              null,
+              albumSong.song.platform,
+              null,
+              albumSong.song.aId));
         } else {
-          list.add(new playlist.DataList(song.name, song.id, arList, al,
-              song.mvId, song.trackNo, song.platform, song.duration, song.aId));
+          list.add(new playlist.DataList(
+              albumSong.song.name,
+              albumSong.song.id,
+              arList,
+              al,
+              albumSong.song.mvId,
+              albumSong.song.trackNo,
+              albumSong.song.platform,
+              albumSong.song.duration,
+              albumSong.song.aId));
         }
       });
       playManage.setPlaylist(list);
       await AudioInstance().initPlaylist(_audioPlaylist);
     }
     final idxSong =
-        playManage.playlist.indexWhere((song) => content.id == song.id);
+        playManage.playlist.indexWhere((song) => content.song.id == song.id);
     playManage.setPlayIndex(idxSong);
     playManage.setCurrentPlay(playManage.playlist[idxSong]);
     await AudioInstance().playlistPlayAtIndex(idxSong);
   }
 
   _getAudioPlaylist(List songArr) async {
-    print(songArr);
     List unFoundList = [];
     List reMoveList = [];
     List<audioPlayer.Audio> _audios = [];
@@ -154,12 +166,12 @@ class _AlbumListState extends State<AlbumList> {
           idString = ids.getRange(baseLoop * i, (1 + i) * baseLoop).join(',');
           loopEnd = (1 + i) * baseLoop;
         }
-        final Response response = await HttpManager().get(apiList['BATCH_URL'],
-            data: {
-              'id': idString,
-              '_p': getPlatformPara(),
-              '_t': Duration().inMicroseconds
-            });
+        final Response response = await HttpManager(context)
+            .get(apiList['BATCH_URL'], data: {
+          'id': idString,
+          '_p': getPlatformPara(),
+          '_t': Duration().inMicroseconds
+        });
         final String songsurl = jsonEncode(response.data['data']);
 
         songArr.getRange(baseLoop * i, loopEnd).forEach((song) {
@@ -168,7 +180,7 @@ class _AlbumListState extends State<AlbumList> {
             audioPlayer.Audio _audio = _getAudio(song, url);
             _audios.add(_audio);
             _audioPlaylist.add(_audio);
-            _songList.add(song);
+            _songList.add(new AlbumSong(song: song));
           } else {
             unFoundList.add(song);
           }
@@ -202,7 +214,7 @@ class _AlbumListState extends State<AlbumList> {
           });
           loopEnd = (1 + i) * baseLoop;
         }
-        final Response response = await HttpManager()
+        final Response response = await HttpManager(context)
             .post(apiList['QQ_SONG_FINDS'], data: {'data': findByQQ});
         if (response.data['result'] == 100) {
           String songsurl = jsonEncode(response.data['data']);
@@ -211,7 +223,7 @@ class _AlbumListState extends State<AlbumList> {
             if (url != null) {
               audioPlayer.Audio _audio = _getAudio(song, url);
               _audioPlaylist.add(_audio);
-              _songList.add(song);
+              _songList.add(new AlbumSong(song: song));
               _audios.add(_audio);
             } else {
               reMoveList.add(song);
@@ -225,7 +237,7 @@ class _AlbumListState extends State<AlbumList> {
         findByQQ[song.id.toString()] =
             '${song.name}' + ' ' + '${song.ar.map((a) => a.name).join(' ')}';
       });
-      final Response response = await HttpManager()
+      final Response response = await HttpManager(context)
           .post(apiList['QQ_SONG_FINDS'], data: {'data': findByQQ});
       if (response.data['result'] == 100) {
         String songsurl = jsonEncode(response.data['data']);
@@ -234,7 +246,7 @@ class _AlbumListState extends State<AlbumList> {
           if (url != null) {
             audioPlayer.Audio _audio = _getAudio(song, url);
             _audioPlaylist.add(_audio);
-            _songList.add(song);
+            _songList.add(new AlbumSong(song: song));
           } else {
             reMoveList.add(song);
           }
@@ -249,14 +261,15 @@ class _AlbumListState extends State<AlbumList> {
         if (url != null) {
           audioPlayer.Audio _audio = _getAudio(song, url);
           _audioPlaylist.add(_audio);
-          _songList.add(song);
+          _songList.add(new AlbumSong(song: song));
         } else {
           reMoveList.add(song);
         }
       });
     }
-
-    //这些歌曲都是找不到的 不过几乎没有
+    reMoveList.forEach((song) {
+      _songList.add(new AlbumSong(song: song, canPlay: false));
+    });
     //reMoveList
     // 将新增加的歌曲加入播放列表
     if (_openState) {
@@ -290,8 +303,7 @@ class _AlbumListState extends State<AlbumList> {
       context.read<PlaylistManage>().addAll(list);
       await AudioInstance().addAll(_audios);
     }
-
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   audioPlayer.Audio _getAudio(song, url) {
@@ -320,4 +332,11 @@ class _AlbumListState extends State<AlbumList> {
     );
     return audio;
   }
+}
+
+class AlbumSong {
+  final bool canPlay;
+  final song;
+
+  AlbumSong({this.canPlay = true, this.song});
 }

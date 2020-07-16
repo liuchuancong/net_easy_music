@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:net_easy_music/api/apiList.dart';
+import 'package:net_easy_music/components/bottomPlayerBar.dart';
+import 'package:net_easy_music/components/playAllButton.dart';
 import 'package:net_easy_music/json/searchAlbum/search_album_migu/search_album_migu.dart';
 import 'package:net_easy_music/json/searchAlbum/search_album_netease/search_album_netease.dart';
 import 'package:net_easy_music/json/searchAlbum/search_album_qq/search_album_qq.dart';
@@ -11,6 +12,9 @@ import 'package:net_easy_music/utils/paletteColor.dart';
 
 import 'components/albumList.dart';
 import 'components/header.dart';
+
+///歌单详情信息 header 高度
+const double HEIGHT_HEADER = 280 + kToolbarHeight;
 
 class SearchAlbum extends StatefulWidget {
   final String platform;
@@ -47,100 +51,70 @@ class _SearchAlbumState extends State<SearchAlbum> {
     super.dispose();
   }
 
-  Widget _buildTopBar(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      color: hasLoaded ? Colors.transparent : Colors.black,
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              padding: const EdgeInsets.all(18.0),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          )
-        ],
-      ),
+  Widget _buildLoading(BuildContext context) {
+    return _buildPreview(
+        context, Container(height: 200, child: Center(child: Text("加载中..."))));
+  }
+
+  Widget _buildPreview(BuildContext context, Widget content) {
+    return CustomScrollView(
+      slivers: <Widget>[
+        SliverAppBar(
+          pinned: true,
+          expandedHeight: HEIGHT_HEADER,
+          flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+            color: _headerColor,
+          )),
+          bottom: PlayAllButton(0),
+        ),
+        SliverList(delegate: SliverChildListDelegate([content]))
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: _headerColor,
       resizeToAvoidBottomPadding: false,
       body: SafeArea(
-        child: new Stack(
+          child: BottomControllerBar(
+        child: Stack(
           children: <Widget>[
-            Container(
-              color: _headerColor,
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    height: maxExtent,
-                    child: Column(
-                      children: <Widget>[
-                        _buildTopBar(context),
-                        hasLoaded
-                            ? AlbumHeader(
-                                width: MediaQuery.of(context).size.width,
-                                searchAlbumMigu: searchAlbumMigu,
-                                searchAlbumNetease: searchAlbumNetease,
-                                searchAlbumQq: searchAlbumQq,
-                                platformMusic: widget.platformMusic,
-                              )
-                            : Container(),
-                      ],
+            Positioned(
+                child: Container(
+              color: Colors.white,
+            )),
+            hasLoaded
+                ? CustomScrollView(slivers: [
+                    SliverAppBar(
+                      automaticallyImplyLeading: false,
+                      expandedHeight: HEIGHT_HEADER,
+                      backgroundColor: Colors.transparent,
+                      pinned: true,
+                      elevation: 0,
+                      flexibleSpace: AlbumHeader(
+                        width: MediaQuery.of(context).size.width,
+                        searchAlbumMigu: searchAlbumMigu,
+                        searchAlbumNetease: searchAlbumNetease,
+                        searchAlbumQq: searchAlbumQq,
+                        platformMusic: widget.platformMusic,
+                        headerColor: _headerColor,
+                      ),
+                      bottom: PlayAllButton(_getPlayListLength()),
                     ),
-                  ),
-                  hasLoaded
-                      ? Expanded(
-                          child: Container(
-                            color: hasLoaded ? _headerColor : Colors.white,
-                            child: AlbumList(
-                              searchAlbumMigu: searchAlbumMigu,
-                              searchAlbumNetease: searchAlbumNetease,
-                              searchAlbumQq: searchAlbumQq,
-                              platformMusic: widget.platformMusic,
-                            ),
-                          ),
-                        )
-                      : Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20.0),
-                                topRight: Radius.circular(20.0)),
-                            child: Container(
-                              color: Colors.white,
-                              child: Column(
-                                children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 30),
-                                    child: SpinKitWave(
-                                      color: Colors.red,
-                                      size: 10.0,
-                                      itemCount: 5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                ],
-              ),
-            )
+                    AlbumList(
+                      searchAlbumMigu: searchAlbumMigu,
+                      searchAlbumNetease: searchAlbumNetease,
+                      searchAlbumQq: searchAlbumQq,
+                      platformMusic: widget.platformMusic,
+                    )
+                  ])
+                : _buildLoading(context),
           ],
         ),
-      ),
+      )),
     );
   }
 
@@ -153,7 +127,7 @@ class _SearchAlbumState extends State<SearchAlbum> {
     };
 
     final Response response =
-        await HttpManager().get(apiList['ALBUM'], data: searchMap);
+        await HttpManager(context).get(apiList['ALBUM'], data: searchMap);
     //平台不同分开解析
     if (widget.platformMusic == PlatformMusic.NETEASE) {
       searchAlbumNetease = SearchAlbumNetease.fromJson(response.data);
@@ -176,6 +150,21 @@ class _SearchAlbumState extends State<SearchAlbum> {
     });
   }
 
+  _getPlayListLength() {
+    int _count = 0;
+    switch (widget.platformMusic) {
+      case PlatformMusic.NETEASE:
+        _count = searchAlbumNetease.data.content.length;
+        break;
+      case PlatformMusic.QQ:
+        _count = searchAlbumQq.data.content.length;
+        break;
+      case PlatformMusic.MIGU:
+        _count = searchAlbumMigu.data.content.length;
+        break;
+    }
+    return _count;
+  }
   // List<Widget> _buildDesc(BuildContext context) {
   //   List<String> descArr = albumDes.split(new RegExp(r'/[(\r\n)\r\n]+/'));
   //   return descArr.map((e) {
@@ -194,3 +183,5 @@ class _SearchAlbumState extends State<SearchAlbum> {
   //   }).toList();
   // }
 }
+
+/// a detail header describe album informatio

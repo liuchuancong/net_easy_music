@@ -14,8 +14,9 @@ import 'page/my_home_page/my_home_page.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isAndroid) {
-    SystemUiOverlayStyle systemUiOverlayStyle =
-        SystemUiOverlayStyle(statusBarColor: Colors.black);
+    SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+    );
     SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -47,6 +48,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.black,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        appBarTheme: Theme.of(context)
+            .appBarTheme
+            .copyWith(brightness: Brightness.light),
       ),
       home: MyHomePage(),
     );
