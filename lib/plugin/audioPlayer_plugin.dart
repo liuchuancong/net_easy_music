@@ -1,4 +1,7 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:net_easy_music/common/get_song.dart';
+import 'package:net_easy_music/plugin/flutterToastManage.dart';
+import 'package:net_easy_music/settings/global.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AudioInstance {
@@ -138,7 +141,11 @@ class AudioInstance {
   }
 
   Future<void> playlistPlayAtIndex(int index) async {
-    await assetsAudioPlayer.playlistPlayAtIndex(index);
+    try {
+      await assetsAudioPlayer.playlistPlayAtIndex(index);
+    } catch (e) {
+      handlePlayerErr();
+    }
   }
 
   Future<void> seek(Duration by) async {
@@ -150,7 +157,30 @@ class AudioInstance {
   }
 
   Future<void> play() async {
-    await assetsAudioPlayer.play();
+    try {
+      await assetsAudioPlayer.play();
+    } catch (e) {
+      handlePlayerErr();
+    }
+  }
+
+  handlePlayerErr() {
+    try {
+      AudioInstance().assetsAudioPlayer.onErrorDo = (handler) async {
+        final currentContext = navigatorKey.currentContext;
+        final path = await getSongNewPath(currentContext);
+        print(path);
+        if (path != null) {
+          handler.player.playlist.replaceAt(handler.playlistIndex,
+              (oldAudio) => oldAudio.copyWith(path: path));
+          AudioInstance().playlistPlayAtIndex(handler.playlistIndex);
+        } else {
+          FlutterToastManage().showToast("获取链接失败", currentContext);
+        }
+      };
+    } catch (e) {
+      print('e : $e');
+    }
   }
 
   Future<void> pause() async {
@@ -162,11 +192,19 @@ class AudioInstance {
   }
 
   Future<void> next() async {
-    await assetsAudioPlayer.next(keepLoopMode: true);
+    try {
+      await assetsAudioPlayer.next(keepLoopMode: false);
+    } catch (e) {
+      handlePlayerErr();
+    }
   }
 
   Future<void> prev() async {
-    await assetsAudioPlayer.previous(keepLoopMode: true);
+    try {
+      await assetsAudioPlayer.previous(keepLoopMode: true);
+    } catch (e) {
+      handlePlayerErr();
+    }
   }
 
   Future<void> dispose() async {

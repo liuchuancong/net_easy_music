@@ -40,7 +40,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     AudioInstance().requestRecordAudioPermission();
     getRecommendPlaylist();
     currentPlaySong();
-    _handlePlayerErr();
     _albumController =
         new AnimationController(vsync: this, duration: Duration(seconds: 60));
   }
@@ -299,7 +298,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _currentPlaySubscription =
         AudioInstance().assetsAudioPlayer.current.listen((playingAudio) {
       _albumController.reset();
-      _getSonglyric(playingAudio.playlist.currentIndex);
+      if (playingAudio != null && playingAudio.playlist != null) {
+        print('*----------------------*playingAudio.playlist${playingAudio.playlist}');
+        _getSonglyric(playingAudio.playlist.currentIndex);
+      }
     });
   }
 
@@ -472,43 +474,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       Future.delayed(Duration(seconds: 0), () {
         Provider.of<DrawerManage>(context, listen: false).closeDrawer();
       });
-    }
-  }
-
-  Future<String> getSongNewPath() async {
-    String path;
-    final Response response = await HttpManager(context).get(
-        apiList['SONG_URL'],
-        data: {'id': context.read<PlaylistManage>().currentPlay.id});
-    Map songsMap = json.decode(response.toString());
-    if (songsMap['code'] == 200) {
-      path = songsMap['data'][0]['url'];
-    } else {
-      print('error');
-    }
-    return path;
-  }
-
-  _handlePlayerErr() {
-    try {
-      AudioInstance().assetsAudioPlayer.onErrorDo = (handler) async {
-        print('handler.error.errorType${handler.error.errorType}');
-        print('handler.error.message${handler.error.message}');
-        // handler.player.open(
-        //   handler.playlist.copyWith(startIndex: handler.playlistIndex),
-        //   seek: handler.currentPosition,
-        // );
-        // final path = await getSongNewPath();
-        // print(path);
-        // if (path != null) {
-        //   handler.player.playlist.replaceAt(
-        //       handler.playlistIndex,
-        //       (oldAudio) =>
-        //           new audioPlayer.Audio.network(path, metas: oldAudio.metas));
-        // }
-      };
-    } catch (e) {
-      print('e : $e');
     }
   }
 }

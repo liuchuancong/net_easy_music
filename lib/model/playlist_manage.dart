@@ -27,6 +27,7 @@ class PlaylistManage extends ChangeNotifier {
   }
 
   void setCurrentPlay(DataList currentPlay) {
+    this._playIndex = _playList.indexOf(currentPlay);
     this._currentPlay = currentPlay;
     notifyListeners();
   }

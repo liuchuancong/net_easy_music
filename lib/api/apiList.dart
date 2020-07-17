@@ -104,10 +104,10 @@ const apiList = {
   'COMMON_ADD_FEEDBACK': '/apiQ/feedback/add', // 增加反馈
   'COMMON_DELETE_FEEDBACK': '/apiQ/feedback/delete', // 删除反馈
 
-  '163': '//music.jsososo.com/neapi/index.php',
-  'QQ_SONG_INFO': '//u.y.qq.com/cgi-bin/musicu.fcg',
-  'QQ_LIST': '//c.y.qq.com/rsc/fcgi-bin/fcg_get_profile_homepage.fcg',
-  'QQ_USER_LIST_DETAIL': '//music.jsososo.com/api/getQQListDetail.php',
-  'QQ_GET_LYRIC': '//music.jsososo.com/api/getQQLyricNew.php',
-  'QQ_RADIO_INFO': '//u.y.qq.com/cgi-bin/musicu.fcg',
+  '163': 'http://music.jsososo.com/neapi/index.php',
+  'QQ_SONG_INFO': 'http://u.y.qq.com/cgi-bin/musicu.fcg',
+  'QQ_LIST': 'http://c.y.qq.com/rsc/fcgi-bin/fcg_get_profile_homepage.fcg',
+  'QQ_USER_LIST_DETAIL': 'http://music.jsososo.com/api/getQQListDetail.php',
+  'QQ_GET_LYRIC': 'http://music.jsososo.com/api/getQQLyricNew.php',
+  'QQ_RADIO_INFO': 'http://u.y.qq.com/cgi-bin/musicu.fcg',
 };

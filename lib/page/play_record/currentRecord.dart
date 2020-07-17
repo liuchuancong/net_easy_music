@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:net_easy_music/json/playlist.dart';
 import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
+import 'package:net_easy_music/settings/global.dart';
 import 'package:provider/provider.dart';
 
 class CurrentRecord extends StatefulWidget {
@@ -84,6 +85,18 @@ class _CurrentRecordState extends State<CurrentRecord> {
     }
   }
 
+  playAtIndex(music) async {
+    final currentContext = navigatorKey.currentContext;
+    final playManage =
+        Provider.of<PlaylistManage>(currentContext, listen: false);
+    Provider.of<PlaylistManage>(currentContext, listen: false)
+        .setCurrentPlay(music);
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+    await AudioInstance().playlistPlayAtIndex(playManage.playIndex);
+  }
+
   Widget playListItem(DataList music) {
     final currentPlay = Provider.of<PlaylistManage>(context).currentPlay;
     return Container(
@@ -108,12 +121,7 @@ class _CurrentRecordState extends State<CurrentRecord> {
             textAlign: TextAlign.left),
         onTap: () {
           if (currentPlay.id != music.id) {
-            Provider.of<PlaylistManage>(context, listen: false)
-                .setCurrentPlay(music);
-            int idx =
-                Provider.of<PlaylistManage>(context, listen: false).playlist.indexOf(music);
-                context.read<PlaylistManage>().setPlayIndex(idx);
-            AudioInstance().playlistPlayAtIndex(idx);
+            playAtIndex(music);
           }
         },
       ),

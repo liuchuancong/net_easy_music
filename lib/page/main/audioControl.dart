@@ -252,6 +252,9 @@ class _AudioControlState extends State<AudioControl> {
   Future<void> _playSong() async {
     await AudioInstance().play();
   }
+  Future<void> _pause() async {
+    await AudioInstance().pause();
+  }
 
   _changePlayModel(PlayModel playModel) async{
     PlayModel _updatePlayModel;
@@ -321,7 +324,7 @@ class _AudioControlState extends State<AudioControl> {
                 if (isPlaying) {
                   return ControlButton(
                       codePoint: 0xE696,
-                      onControlTaped: () => AudioInstance().pause());
+                      onControlTaped: () => _pause());
                 }
                 return ControlButton(
                     codePoint: 0xE600, onControlTaped: () => _playSong());
