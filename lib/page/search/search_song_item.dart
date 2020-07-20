@@ -1,15 +1,18 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:net_easy_music/common/common.dart';
 import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/page/search/wave.dart';
 import 'package:net_easy_music/page/search/wave_config.dart';
+import 'package:net_easy_music/page/video/video_page.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
+import 'package:net_easy_music/services/getVideoPath.dart';
 import 'package:provider/provider.dart';
 
 class SearchSongItem extends StatefulWidget {
   final int index;
-  final  content;
+  final content;
 
   const SearchSongItem({Key key, @required this.index, @required this.content})
       : super(key: key);
@@ -31,6 +34,11 @@ class _SearchSongItemState extends State<SearchSongItem> {
                       new Image.asset('assets/music2.jpg', fit: BoxFit.cover))
               : new Image.asset('assets/music2.jpg', fit: BoxFit.cover),
         ));
+  }
+
+  getMusicVideo() async {
+   final _videoInfo = await getVideoPath(widget.content.mvId,widget.content.platform);
+    openRoute(page: VideoScreen(video: _videoInfo), context: context);
   }
 
   @override
@@ -95,7 +103,6 @@ class _SearchSongItemState extends State<SearchSongItem> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Container(
-                width: MediaQuery.of(context).size.width * 0.65,
                 child: Row(
                   children: <Widget>[
                     Container(
@@ -108,7 +115,7 @@ class _SearchSongItemState extends State<SearchSongItem> {
                     _buildImage(),
                     Container(
                       margin: EdgeInsets.only(left: 20),
-                      width: 150,
+                      width: 125,
                       child: Text(
                         widget.content.name,
                         style: TextStyle(color: Colors.white),
@@ -118,9 +125,17 @@ class _SearchSongItemState extends State<SearchSongItem> {
                   ],
                 ),
               ),
+              if(widget.content.id.toString()!='0')
               IconButton(
-                  icon: Icon(Icons.more_vert, color: Colors.white),
-                  onPressed: null)
+                icon: Icon(Icons.ondemand_video, color: Colors.white),
+                onPressed: () {
+                  getMusicVideo();
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.more_vert, color: Colors.white),
+                onPressed: null,
+              )
             ],
           ),
         ),
