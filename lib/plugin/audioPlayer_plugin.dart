@@ -1,8 +1,13 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:net_easy_music/common/get_song.dart';
+import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/plugin/flutterToastManage.dart';
 import 'package:net_easy_music/settings/global.dart';
+import 'package:net_easy_music/utils/songExpired.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 class AudioInstance {
   // 单例公开访问点
@@ -98,8 +103,9 @@ class AudioInstance {
   }
 
   Future<void> initPlaylist(Playlist playlist) async {
+    songExpired.songInitTime = DateTime.now().millisecondsSinceEpoch;
     if (isPlay) {
-      stop();
+      await stop();
     }
     try {
       await assetsAudioPlayer.open(
@@ -143,8 +149,10 @@ class AudioInstance {
   Future<void> playlistPlayAtIndex(int index) async {
     try {
       await assetsAudioPlayer.playlistPlayAtIndex(index);
-    } catch (e) {
-      handlePlayerErr();
+    } on PlatformException catch (err) {
+      await handlePlayerErr(err, playIndex: index);
+    } catch (err) {
+      // other types of Exceptions
     }
   }
 
@@ -159,27 +167,13 @@ class AudioInstance {
   Future<void> play() async {
     try {
       await assetsAudioPlayer.play();
-    } catch (e) {
-      handlePlayerErr();
-    }
-  }
-
-  handlePlayerErr() {
-    try {
-      AudioInstance().assetsAudioPlayer.onErrorDo = (handler) async {
-        final currentContext = navigatorKey.currentContext;
-        final path = await getSongNewPath(currentContext);
-        print(path);
-        if (path != null) {
-          handler.player.playlist.replaceAt(handler.playlistIndex,
-              (oldAudio) => oldAudio.copyWith(path: path));
-          AudioInstance().playlistPlayAtIndex(handler.playlistIndex);
-        } else {
-          FlutterToastManage().showToast("获取链接失败", currentContext);
-        }
-      };
-    } catch (e) {
-      print('e : $e');
+    } on PlatformException catch (err) {
+      // Handle err
+      final currentContext = navigatorKey.currentContext;
+      final idx = currentContext.read<PlaylistManage>().playIndex;
+      handlePlayerErr(err, playIndex: idx);
+    } catch (err) {
+      // other types of Exceptions
     }
   }
 
@@ -194,16 +188,39 @@ class AudioInstance {
   Future<void> next() async {
     try {
       await assetsAudioPlayer.next(keepLoopMode: false);
-    } catch (e) {
-      handlePlayerErr();
+    } on PlatformException catch (err) {
+      final currentContext = navigatorKey.currentContext;
+      final idx = currentContext.read<PlaylistManage>().nextIndex;
+      handlePlayerErr(err, playIndex: idx);
+    } catch (err) {
+      // other types of Exceptions
     }
   }
 
   Future<void> prev() async {
     try {
       await assetsAudioPlayer.previous(keepLoopMode: true);
-    } catch (e) {
-      handlePlayerErr();
+    } on PlatformException catch (err) {
+      final currentContext = navigatorKey.currentContext;
+      final idx = currentContext.read<PlaylistManage>().prevIndex;
+      handlePlayerErr(err, playIndex: idx);
+    } catch (err) {
+      // other types of Exceptions
+    }
+  }
+
+  handlePlayerErr(PlatformException err, {@required int playIndex}) async {
+    if (err.details['type'] == 'network') {
+      // 停止播放
+      final currentContext = navigatorKey.currentContext;
+      final path = await getSongNewPath(currentContext);
+      if (path != null) {
+        assetsAudioPlayer.playlist
+            .replaceAt(playIndex, (oldAudio) => oldAudio.copyWith(path: path));
+        await playlistPlayAtIndex(playIndex);
+      } else {
+        FlutterToastManage().showToast("获取链接失败", currentContext);
+      }
     }
   }
 

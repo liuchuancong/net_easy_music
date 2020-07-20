@@ -15,6 +15,7 @@ import 'package:net_easy_music/lyric/lyric.dart';
 import 'package:net_easy_music/model/playlist_manage.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
 import 'package:net_easy_music/plugin/httpManage.dart';
+import 'package:net_easy_music/services/playlistReset.dart';
 import 'package:provider/provider.dart';
 import 'package:net_easy_music/model/drawer_manage.dart';
 import 'audioControl.dart';
@@ -299,8 +300,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         AudioInstance().assetsAudioPlayer.current.listen((playingAudio) {
       _albumController.reset();
       if (playingAudio != null && playingAudio.playlist != null) {
-        print('*----------------------*playingAudio.playlist${playingAudio.playlist}');
+        final playManage = context.read<PlaylistManage>();
+        playManage.setPlayIndex(playingAudio.playlist.currentIndex);
         _getSonglyric(playingAudio.playlist.currentIndex);
+        reSetAudioPlaylist(playingAudio.playlist.currentIndex);
       }
     });
   }
@@ -446,18 +449,20 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       if (songsMap['result'] == 100) {
         String lyrics = songsMap['data']['lyric'];
         String lyricsTran = songsMap['data']['trans'];
-        lyricContent = LyricContent.from(lyrics
-            .replaceAll('&apos;', '\'')
-            .replaceAll('&quot;', '\'')
-            .replaceAll('//', '')
-            .replaceAll('&amp;', '&')
-            .replaceAll('&nbsp;', '\\'));
-        lyricTranslateContent = LyricContent.from(lyricsTran
-            .replaceAll('&apos;', '\'')
-            .replaceAll('//', '')
-            .replaceAll('&quot;', '\'')
-            .replaceAll('&amp;', '&')
-            .replaceAll('&nbsp;', '\\'));
+        if (lyrics != null)
+          lyricContent = LyricContent.from(lyrics
+              .replaceAll('&apos;', '\'')
+              .replaceAll('&quot;', '\'')
+              .replaceAll('//', '')
+              .replaceAll('&amp;', '&')
+              .replaceAll('&nbsp;', '\\'));
+        if (lyricsTran != null)
+          lyricTranslateContent = LyricContent.from(lyricsTran
+              .replaceAll('&apos;', '\'')
+              .replaceAll('//', '')
+              .replaceAll('&quot;', '\'')
+              .replaceAll('&amp;', '&')
+              .replaceAll('&nbsp;', '\\'));
       }
     } catch (e) {
       print(e.toString());

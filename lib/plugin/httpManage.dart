@@ -62,10 +62,8 @@ class HttpManager {
       this.initCookies(options);
       return options;
     }, onResponse: (Response response) {
-      print("在响应之前的拦截信息");
       return response;
     }, onError: (DioError e) {
-      print("在错误之前的拦截信息");
       return e;
     }));
     // (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
