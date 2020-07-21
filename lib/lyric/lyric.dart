@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:net_easy_music/lyric/utils.dart';
+
 class Lyric extends StatefulWidget {
   Lyric({
     @required this.lyric,
@@ -197,7 +198,7 @@ class LyricState extends State<Lyric> with TickerProviderStateMixin {
         onVerticalDragEnd: (details) {
           _flingController = AnimationController.unbounded(
             vsync: this,
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 200),
           )
             ..addListener(() {
               double value = _flingController.value;
@@ -313,10 +314,14 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
     double dy;
     canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
     if (lyricTranslation != null && lyricTranslation.size != 0) {
-      dy = offsetScroll +
-          size.height / 2 -
-          lyricPainters[0].height / 2 -
-          lyricTranslationPainters[0].height / 2;
+      if (lyricTranslation[0].timeStamp == lyric[0].timeStamp) {
+        dy = offsetScroll +
+            size.height / 2 -
+            lyricPainters[0].height / 2 -
+            lyricTranslationPainters[0].height / 2;
+      } else {
+        dy = offsetScroll + size.height / 2 - lyricPainters[0].height / 2;
+      }
     } else {
       dy = offsetScroll + size.height / 2 - lyricPainters[0].height / 2;
     }
@@ -328,10 +333,10 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
         drawLine(canvas, painter, dy, size);
       }
       dy += painter.height;
-      if (lyricTranslation != null && lyricTranslation.size != 0) {
-        for (var i = 0; i < lyricTranslation.size; i++) {
+      if (lyricTranslation != null && lyricTranslationPainters.length != 0) {
+        for (var i = 0; i < lyricTranslationPainters.length; i++) {
+          TextPainter tarnslatePainter = lyricTranslationPainters[i];
           if (lyric[line].timeStamp == lyricTranslation[i].timeStamp) {
-            TextPainter tarnslatePainter = lyricTranslationPainters[i];
             if (currentLine == line) {
               _paintCurrentLine(canvas, tarnslatePainter, dy, size);
             } else {
@@ -359,32 +364,9 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
           text: (painter.text as TextSpan).text, style: _styleHighlight)
       ..textAlign = textAlign;
 
-    _highlightPainter.layout(); //layout with unbound width
-
-    // double lineWidth = _highlightPainter.width;
-    // double gradientWidth = _highlightPainter.width * lineGradientPercent;
-    // final double lineHeight = _highlightPainter.height;
-
+    _highlightPainter.layout(); //layout with unbound widt
     _highlightPainter.layout(maxWidth: size.width);
-
-    // final highlightRegion = Path();
-    // double lineDy = 0;
-    // while (gradientWidth > 0) {
-    //   double dx = 0;
-    //   if (lineWidth < size.width) {
-    //     dx = (size.width - lineWidth) / 2;
-    //   }
-    //   highlightRegion.addRect(
-    //       Rect.fromLTWH(0, dy + lineDy, dx + gradientWidth, lineHeight));
-    //   lineWidth -= _highlightPainter.width;
-    //   gradientWidth -= _highlightPainter.width;
-    //   lineDy += lineHeight;
-    // }
-
     canvas.save();
-    //去掉滚动
-    // canvas.clipPath(highlightRegion);
-
     drawLine(canvas, _highlightPainter, dy, size);
     canvas.restore();
   }
@@ -438,23 +420,28 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
     if (lyricTranslation != null && lyricTranslation.size != 0) {
       height += -lyricTranslationPainters[0].height / 2;
     }
-    height = -lyricPainters[0].height / 2;
+    height += -lyricPainters[0].height / 2;
     for (int i = 0; i < lyricPainters.length; i++) {
       if (i == destination) {
         height += lyricPainters[i].height / 2;
         break;
       }
       height += lyricPainters[i].height;
-    }
-    if (lyricTranslation != null && lyricTranslationPainters.length > 0) {
-      for (int j = 0; j < lyricTranslationPainters.length; j++) {
-        if (j == destination) {
-          height += lyricTranslationPainters[j].height / 2;
-          break;
+      if (lyricTranslation != null && lyricTranslationPainters.length > 0) {
+        // 修复翻译歌词滚动位置
+        for (int j = 0; j < lyricTranslationPainters.length; j++) {
+          if (lyricTranslation[j].timeStamp == lyric[i].timeStamp) {
+            if (j == destination) {
+              height += lyricTranslationPainters[j].height / 2;
+              break;
+            }
+            height += lyricTranslationPainters[j].height;
+          }
         }
-        height += lyricTranslationPainters[j].height;
       }
     }
+
+    print(height);
     return -(height + offsetScroll);
   }
 
@@ -484,12 +471,14 @@ class LyricContent {
     List<int> keys = map.keys.toList()..sort();
     for (var i = 0; i < keys.length; i++) {
       final key = keys[i];
-      _durations.add(key);
-      int duration = _default_line_duration;
-      if (i + 1 < keys.length) {
-        duration = keys[i + 1] - key;
+      if (map[key].toString().isNotEmpty) {
+        _durations.add(key);
+        int duration = _default_line_duration;
+        if (i + 1 < keys.length) {
+          duration = keys[i + 1] - key;
+        }
+        _lyricEntries.add(LyricEntry(map[key], key, duration));
       }
-      _lyricEntries.add(LyricEntry(map[key], key, duration));
     }
   }
 

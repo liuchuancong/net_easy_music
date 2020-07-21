@@ -143,7 +143,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         .copyWith(height: 2, fontSize: 16, color: Colors.white);
     if (lyricContent != null && lyricContent.size > 0) {
       return LayoutBuilder(builder: (context, constraints) {
-        final normalStyle = style.copyWith(color: style.color.withOpacity(0.7));
+        final normalStyle = style.copyWith(color: style.color.withOpacity(0.7),fontSize: 14);
         //歌词顶部与尾部半透明显示
         return ShaderMask(
           shaderCallback: (rect) {
