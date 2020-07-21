@@ -219,7 +219,7 @@ class AudioInstance {
             .replaceAt(playIndex, (oldAudio) => oldAudio.copyWith(path: path));
         await playlistPlayAtIndex(playIndex);
       } else {
-        FlutterToastManage().showToast("获取链接失败", currentContext);
+        FlutterToastManage().showToast("获取链接失败");
       }
     }
   }

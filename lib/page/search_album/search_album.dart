@@ -127,7 +127,7 @@ class _SearchAlbumState extends State<SearchAlbum> {
     };
 
     final Response response =
-        await HttpManager(context).get(apiList['ALBUM'], data: searchMap);
+        await HttpManager().get(apiList['ALBUM'], data: searchMap);
     //平台不同分开解析
     if (widget.platformMusic == PlatformMusic.NETEASE) {
       searchAlbumNetease = SearchAlbumNetease.fromJson(response.data);

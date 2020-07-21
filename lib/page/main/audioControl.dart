@@ -229,7 +229,7 @@ class _AudioControlState extends State<AudioControl> {
           ControlButton(
             codePoint: 0xE6C9,
             onControlTaped: (){
-              FlutterToastManage().showToast('请先添加歌曲',context,gravity: ToastGravity.CENTER);
+              FlutterToastManage().showToast('请先添加歌曲',gravity: ToastGravity.CENTER);
             },
           ),
           ControlButton(
@@ -262,12 +262,12 @@ class _AudioControlState extends State<AudioControl> {
     switch (playModel) {
       case PlayModel.PLAYLIST:
         _updatePlayModel = PlayModel.SINGLE;
-        FlutterToastManage().showToast('单曲循环',context,gravity: ToastGravity.CENTER);
+        FlutterToastManage().showToast('单曲循环',gravity: ToastGravity.CENTER);
        await AudioInstance().assetsAudioPlayer.setLoopMode(LoopMode.single);
         break;
       case PlayModel.SINGLE:
         _updatePlayModel = PlayModel.PLAYLIST;
-        FlutterToastManage().showToast('列表循环',context,gravity: ToastGravity.CENTER);
+        FlutterToastManage().showToast('列表循环',gravity: ToastGravity.CENTER);
         await AudioInstance().assetsAudioPlayer.setLoopMode(LoopMode.playlist
         );
         break;

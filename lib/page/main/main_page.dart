@@ -309,7 +309,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   getRecommendPlaylist() async {
-    final Response response = await HttpManager(context)
+    final Response response = await HttpManager()
         .get(apiList['RECOMMEND_PLAYLIST'], data: {'login': 0, '_p': 163});
     final _playlist = RecommendPlaylist.fromJson(response.data);
     if (_playlist.result == 100) {
@@ -318,7 +318,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   getPlaylist(RecommendPlaylist playlist) async {
-    final Response response = await HttpManager(context).get(
+    final Response response = await HttpManager().get(
         apiList['PLAYLIST'],
         data: {'id': playlist.data[0].id, '_p': playlist.data[0].platform});
     final _playlist = Playlist.fromJson(response.data);
@@ -350,7 +350,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         idString = ids.getRange(baseLoop * i, (1 + i) * baseLoop).join(',');
         loopEnd = (1 + i) * baseLoop;
       }
-      final Response response = await HttpManager(context)
+      final Response response = await HttpManager()
           .get(apiList['BATCH_URL'], data: {
         'id': idString,
         '_p': platform,
@@ -390,7 +390,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         });
         loopEnd = (1 + i) * baseLoop;
       }
-      final Response response = await HttpManager(context)
+      final Response response = await HttpManager()
           .post(apiList['QQ_SONG_FINDS'], data: {'data': findByQQ});
       if (response.data['result'] == 100) {
         String songsurl = jsonEncode(response.data['data']);
@@ -443,7 +443,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     lyricTranslateContent = null;
     try {
       final Response response =
-          await HttpManager(context).get(apiList['LYRIC'], data: {
+          await HttpManager().get(apiList['LYRIC'], data: {
         'id': play.playlist[index].id,
         '_p': play.playlist[index].platform,
         '_t': Duration().inMicroseconds.toString()

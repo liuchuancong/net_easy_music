@@ -441,8 +441,6 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
         }
       }
     }
-
-    print(height);
     return -(height + offsetScroll);
   }
 

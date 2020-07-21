@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:net_easy_music/utils/cookie.dart';
 
 import 'flutterToastManage.dart';
@@ -15,13 +14,10 @@ class HttpManager {
   static HttpManager _instance;
   Dio _dio;
   BaseOptions _options;
-  BuildContext _context;
-  HttpManager._internal(BuildContext context) {
-    this._context = context;
-  }
+  HttpManager._internal();
   //单例模式，只创建一次实例
-  static HttpManager getInstance(BuildContext context) {
-    _instance = HttpManager._internal(context);
+  static HttpManager getInstance() {
+    _instance = HttpManager._internal();
     return _instance;
   }
 
@@ -40,7 +36,7 @@ class HttpManager {
   }
 
   //构造函数
-  HttpManager(context) {
+  HttpManager() {
     _options = new BaseOptions(
         baseUrl: baseUrl,
         //连接时间为5秒
@@ -74,7 +70,6 @@ class HttpManager {
     //   client.badCertificateCallback =
     //       (X509Certificate cert, String host, int port) => true;
     // };
-    this._context = context;
   }
 
   //get请求方法
@@ -94,11 +89,13 @@ class HttpManager {
   post(url, {params, options, cancelToken, data}) async {
     Response response;
     try {
-      response = await _dio.post(url,
-          queryParameters: params,
-          options: options,
-          cancelToken: cancelToken,
-          data: data);
+      response = await _dio.post(
+        url,
+        queryParameters: params,
+        options: options,
+        cancelToken: cancelToken,
+        data: data,
+      );
     } on DioError catch (e) {
       formatError(e);
     }
@@ -140,17 +137,17 @@ class HttpManager {
 
   void formatError(DioError e) {
     if (e.type == DioErrorType.CONNECT_TIMEOUT) {
-      FlutterToastManage().showToast("连接超时", this._context);
+      FlutterToastManage().showToast("连接超时");
     } else if (e.type == DioErrorType.SEND_TIMEOUT) {
-      FlutterToastManage().showToast("请求超时", this._context);
+      FlutterToastManage().showToast("请求超时");
     } else if (e.type == DioErrorType.RECEIVE_TIMEOUT) {
-      FlutterToastManage().showToast("响应超时", this._context);
+      FlutterToastManage().showToast("响应超时");
     } else if (e.type == DioErrorType.RESPONSE) {
-      FlutterToastManage().showToast("出现异常", this._context);
+      FlutterToastManage().showToast("出现异常");
     } else if (e.type == DioErrorType.CANCEL) {
-      FlutterToastManage().showToast("请求取消", this._context);
+      FlutterToastManage().showToast("请求取消");
     } else {
-      FlutterToastManage().showToast("未知错误", this._context);
+      FlutterToastManage().showToast("未知错误");
     }
   }
 }

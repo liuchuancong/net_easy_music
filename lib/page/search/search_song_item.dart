@@ -7,6 +7,7 @@ import 'package:net_easy_music/page/search/wave.dart';
 import 'package:net_easy_music/page/search/wave_config.dart';
 import 'package:net_easy_music/page/video/video_page.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
+import 'package:net_easy_music/plugin/flutterToastManage.dart';
 import 'package:net_easy_music/services/getVideoPath.dart';
 import 'package:provider/provider.dart';
 
@@ -37,8 +38,14 @@ class _SearchSongItemState extends State<SearchSongItem> {
   }
 
   getMusicVideo() async {
-   final _videoInfo = await getVideoPath(widget.content.mvId,widget.content.platform);
-    openRoute(page: VideoScreen(video: _videoInfo), context: context);
+    print(widget.content.mvId);
+    if (widget.content.mvId.toString() == '0') {
+      FlutterToastManage().showToast("暂无视频");
+    } else {
+      final _videoInfo =
+          await getVideoPath(widget.content.mvId.toString(), widget.content.platform);
+      openRoute(page: VideoScreen(video: _videoInfo), context: context);
+    }
   }
 
   @override
@@ -125,9 +132,8 @@ class _SearchSongItemState extends State<SearchSongItem> {
                   ],
                 ),
               ),
-              if(widget.content.id.toString()!='0')
               IconButton(
-                icon: Icon(Icons.ondemand_video, color: Colors.white),
+                icon: Icon(Icons.music_video, color: Colors.white),
                 onPressed: () {
                   getMusicVideo();
                 },

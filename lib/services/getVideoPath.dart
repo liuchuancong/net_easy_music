@@ -3,15 +3,13 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:net_easy_music/api/apiList.dart';
 import 'package:net_easy_music/plugin/httpManage.dart';
-import 'package:net_easy_music/settings/global.dart';
 
-Future<VideoModel> getVideoPath(int id, String platform) async {
-  final context = navigatorKey.currentContext;
+Future<VideoModel> getVideoPath(String id, String platform) async {
   // 一般为网易的
   VideoModel _videoModel;
   if (platform.toString() == '163') {
     final Response response =
-        await HttpManager(context).get(apiList['GET_MV_INFO'], data: {
+        await HttpManager().get(apiList['GET_MV_INFO'], data: {
       'mvid': id,
     });
     Map songsMap = json.decode(response.toString());
@@ -28,9 +26,10 @@ Future<VideoModel> getVideoPath(int id, String platform) async {
     }
   }else if (platform.toString() == 'qq') {
     final Response response =
-        await HttpManager(context).get(apiList['QQ_MV_INFO'], data: {
-      'mvid': id,
+        await HttpManager().get(apiList['QQ_MV_URL'], data: {
+      'id': id,
     });
+    print(id);
     Map songsMap = json.decode(response.toString());
     if (songsMap['result'] == 100) {
       String id = songsMap['data']['id'].toString();

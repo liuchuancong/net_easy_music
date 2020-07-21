@@ -11,7 +11,7 @@ Future<String> getSongNewPath(BuildContext context) async {
   // 一般为网易的
   String path;
   final Response response =
-      await HttpManager(context).get(apiList['SONG_URL'], data: {
+      await HttpManager().get(apiList['SONG_URL'], data: {
     'id': context.read<PlaylistManage>().currentPlay.id,
     '_p': context.read<PlaylistManage>().currentPlay.platform,
   });

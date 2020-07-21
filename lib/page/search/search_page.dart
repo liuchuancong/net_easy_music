@@ -130,7 +130,7 @@ class _SearchPageState extends State<SearchPage> {
           idString = ids.getRange(baseLoop * i, (1 + i) * baseLoop).join(',');
           loopEnd = (1 + i) * baseLoop;
         }
-        final Response response = await HttpManager(context)
+        final Response response = await HttpManager()
             .get(apiList['BATCH_URL'], data: {
           'id': idString,
           '_p': getPlatformPara(),
@@ -178,7 +178,7 @@ class _SearchPageState extends State<SearchPage> {
           });
           loopEnd = (1 + i) * baseLoop;
         }
-        final Response response = await HttpManager(context)
+        final Response response = await HttpManager()
             .post(apiList['QQ_SONG_FINDS'], data: {'data': findByQQ});
         if (response.data['result'] == 100) {
           String songsurl = jsonEncode(response.data['data']);
@@ -201,7 +201,7 @@ class _SearchPageState extends State<SearchPage> {
         findByQQ[song.id.toString()] =
             '${song.name}' + ' ' + '${song.ar.map((a) => a.name).join(' ')}';
       });
-      final Response response = await HttpManager(context)
+      final Response response = await HttpManager()
           .post(apiList['QQ_SONG_FINDS'], data: {'data': findByQQ});
       if (response.data['result'] == 100) {
         String songsurl = jsonEncode(response.data['data']);
@@ -316,7 +316,7 @@ class _SearchPageState extends State<SearchPage> {
     };
 
     final Response response =
-        await HttpManager(context).get(apiList['SEARCH'], data: searchMap);
+        await HttpManager().get(apiList['SEARCH'], data: searchMap);
     if (response == null) {
       return;
     }

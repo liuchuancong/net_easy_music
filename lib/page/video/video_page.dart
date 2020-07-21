@@ -30,13 +30,13 @@ class _VideoScreenState extends State<VideoScreen> {
     await player.setOption(FijkOption.hostCategory, "request-audio-focus", 1);
     if (widget.video.brs480 != null) {
       await player
-          .setDataSource(widget.video.brs480, autoPlay: true)
+          .setDataSource(widget.video.brs480, autoPlay: true, showCover: true)
           .catchError((e) {
         print("setDataSource error: $e");
       });
     } else {
       await player
-          .setDataSource(widget.video.brs240, autoPlay: true)
+          .setDataSource(widget.video.brs240, autoPlay: true, showCover: true)
           .catchError((e) {
         print("setDataSource error: $e");
       });
@@ -50,21 +50,11 @@ class _VideoScreenState extends State<VideoScreen> {
       body: Container(
         child: Center(
           child: FijkView(
-            color: Colors.black,
-            player: player,
-            cover: NetworkImage(widget.video.cover),
-            panelBuilder: fijkPanel2Builder(snapShot: true),
-            fsFit: FijkFit.fill,
-            // panelBuilder: simplestUI,
-            // panelBuilder: (FijkPlayer player, BuildContext context,
-            //     Size viewSize, Rect texturePos) {
-            //   return CustomFijkPanel(
-            //       player: player,
-            //       buildContext: context,
-            //       viewSize: viewSize,
-            //       texturePos: texturePos);
-            // },
-          ),
+              color: Colors.black,
+              player: player,
+              cover: NetworkImage(widget.video.cover),
+              panelBuilder: fijkPanel2Builder(snapShot: true),
+              fsFit: FijkFit.fill),
         ),
       ),
     );
