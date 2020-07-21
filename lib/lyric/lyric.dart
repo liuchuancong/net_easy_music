@@ -283,6 +283,7 @@ class LyricPainter extends ChangeNotifier implements CustomPainter {
     for (int i = 0; i < lyric.size; i++) {
       var painter = TextPainter(
           text: TextSpan(style: style, text: lyric[i].line),
+          
           textAlign: textAlign);
       painter.textDirection = TextDirection.ltr;
       lyricPainters.add(painter);
@@ -471,14 +472,12 @@ class LyricContent {
     List<int> keys = map.keys.toList()..sort();
     for (var i = 0; i < keys.length; i++) {
       final key = keys[i];
-      if (map[key].toString().isNotEmpty) {
-        _durations.add(key);
+              _durations.add(key);
         int duration = _default_line_duration;
         if (i + 1 < keys.length) {
           duration = keys[i + 1] - key;
         }
         _lyricEntries.add(LyricEntry(map[key], key, duration));
-      }
     }
   }
 
