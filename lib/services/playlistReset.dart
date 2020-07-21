@@ -16,7 +16,7 @@ reSetAudioPlaylist(int nowPlayIndex) async {
   int nowTime = DateTime.now().millisecondsSinceEpoch;
   if (songExpired.expiresTime < nowTime) {
     songExpired.songInitTime = nowTime;
-    
+
     final context = navigatorKey.currentContext;
     List<DataList> list = context.read<PlaylistManage>().playlist;
     //能在这里面的歌曲一般不会出现播放路劲为null
@@ -28,7 +28,7 @@ reSetAudioPlaylist(int nowPlayIndex) async {
     list.forEach((song) {
       ids.add(song.id);
     });
-    List<String> _songsList = [];
+    List<ReplaceSong> _songsList = [];
     int loopCount = (list.length / baseLoop).ceil();
     // 循环获取歌曲的uir
     for (var i = 0; i < loopCount; i++) {
@@ -52,16 +52,13 @@ reSetAudioPlaylist(int nowPlayIndex) async {
       list.getRange(baseLoop * i, loopEnd).forEach((song) {
         String url = jsonDecode(songsurl)[song.id.toString()];
         if (url != null) {
-          _songsList.add(url);
+          _songsList.add(new ReplaceSong(song.id.toString(), url));
         } else {
           unFoundList.add(song);
         }
       });
     }
-    // 先删掉找不到的歌曲 然后获取然后添加不然歌曲和歌曲链接不对应
-    unFoundList.forEach((song) {
-      context.read<PlaylistManage>().playlist.remove(song);
-    });
+
     //找不到去QQ音乐找
     int unFoundListLoopCount = (unFoundList.length / baseLoop).ceil();
     for (var i = 0; i < unFoundListLoopCount; i++) {
@@ -87,7 +84,7 @@ reSetAudioPlaylist(int nowPlayIndex) async {
         unFoundList.getRange(baseLoop * i, loopEnd).forEach((song) {
           String url = jsonDecode(songsurl)[song.id.toString()]['url'];
           if (url != null) {
-            _songsList.add(url);
+            _songsList.add(new ReplaceSong(song.id.toString(), url));
           } else {
             reMoveList.add(song);
           }
@@ -98,12 +95,17 @@ reSetAudioPlaylist(int nowPlayIndex) async {
     //reMoveList 都找不到
     print('开始替换');
     for (var i = 0; i < list.length; i++) {
-      if (i != nowPlayIndex) {
-        AudioInstance()
-            .assetsAudioPlayer
-            .playlist
-            .replaceAt(i, (oldAudio) => oldAudio.copyWith(path: _songsList[i]));
+      //当前歌曲不替换
+      for (var j = 0; j < _songsList.length; j++) {
+        if (i != nowPlayIndex && list[i].id == _songsList[j].id) {
+          AudioInstance().assetsAudioPlayer.playlist.replaceAt(
+              i, (oldAudio) => oldAudio.copyWith(path: _songsList[j].url));
+        }
       }
+    }
+    for (var i = 0; i < reMoveList.length; i++) {
+      print(reMoveList[i].id);
+      context.read<PlaylistManage>().playlist.remove(reMoveList[i]);
     }
   }
 }
@@ -129,4 +131,11 @@ audioPlayer.Audio getAudio(song, url) {
     ),
   );
   return audio;
+}
+
+class ReplaceSong {
+  final String id;
+  final String url;
+
+  ReplaceSong(this.id, this.url);
 }

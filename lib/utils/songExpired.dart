@@ -7,7 +7,7 @@
 class  SongExpired{
   int _songInitTime;
   //1秒等于1000毫秒 1分钟等于60秒 20*60*1000=1200000毫秒
-  static int expires = 1200000;
+  static int expires = 900000; //15分钟
   int get songInitTime => _songInitTime;
   int get expiresTime => _songInitTime + expires;
   set songInitTime(int time) => this._songInitTime = time;

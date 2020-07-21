@@ -301,9 +301,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       _albumController.reset();
       if (playingAudio != null && playingAudio.playlist != null) {
         final playManage = context.read<PlaylistManage>();
+       reSetAudioPlaylist(playingAudio.playlist.currentIndex);
         playManage.setPlayIndex(playingAudio.playlist.currentIndex);
         _getSonglyric(playingAudio.playlist.currentIndex);
-        reSetAudioPlaylist(playingAudio.playlist.currentIndex);
       }
     });
   }
@@ -407,7 +407,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       }
     }
     //这些歌曲都是找不到的 不过几乎没有
-    //reMoveList
+    //reMoveList  找不到不能播放留着干嘛
+    for (var i = 0; i < reMoveList.length; i++) {
+      context.read<PlaylistManage>().playlist.remove(reMoveList[i]);
+    }
     await AudioInstance().initPlaylist(_songsList);
   }
 
