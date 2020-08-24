@@ -1,6 +1,6 @@
 # net_easy_music
 
-A new Flutter project.
+正在开发中。。。
 
 ## 命令
 

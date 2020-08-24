@@ -12,6 +12,7 @@ import 'package:net_easy_music/utils/songExpired.dart';
 import 'package:provider/provider.dart';
 
 reSetAudioPlaylist(int nowPlayIndex) async {
+  //测试发现 更新了链接还是原来的  :) 链接失效很烦
   //nowPlayIndex 当前歌曲不刷新 不然陷入死循环
   int nowTime = DateTime.now().millisecondsSinceEpoch;
   if (songExpired.expiresTime < nowTime) {

@@ -13,9 +13,9 @@ Future<VideoModel> getVideoPath(String id, String platform) async {
       'mvid': id,
     });
     Map songsMap = json.decode(response.toString());
+    print(songsMap);
     if (songsMap['code'] == 200) {
       String id = songsMap['data']['id'].toString();
-
       String cover = songsMap['data']['cover'].toString();
       String brs240 = songsMap['data']['brs']['240'].toString();
       String brs480 = songsMap['data']['brs']['480'].toString();
