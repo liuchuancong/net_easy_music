@@ -22,6 +22,7 @@ import 'package:net_easy_music/page/search/search_singer_item.dart';
 import 'package:net_easy_music/page/search/search_song_item.dart';
 import 'package:net_easy_music/page/search/search_view.dart';
 import 'package:net_easy_music/page/search_album/search_album.dart';
+import 'package:net_easy_music/page/search_singer/search_singer.dart';
 import 'package:net_easy_music/plugin/audioPlayer_plugin.dart';
 import 'package:net_easy_music/plugin/httpManage.dart';
 import 'package:net_easy_music/type/platform_type.dart';
@@ -130,12 +131,12 @@ class _SearchPageState extends State<SearchPage> {
           idString = ids.getRange(baseLoop * i, (1 + i) * baseLoop).join(',');
           loopEnd = (1 + i) * baseLoop;
         }
-        final Response response = await HttpManager()
-            .get(apiList['BATCH_URL'], data: {
-          'id': idString,
-          '_p': getPlatformPara(),
-          '_t': Duration().inMicroseconds
-        });
+        final Response response = await HttpManager().get(apiList['BATCH_URL'],
+            data: {
+              'id': idString,
+              '_p': getPlatformPara(),
+              '_t': Duration().inMicroseconds
+            });
         final String songsurl = jsonEncode(response.data['data']);
 
         songArr.getRange(baseLoop * i, loopEnd).forEach((song) {
@@ -560,8 +561,11 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  playAtIndex(content) async {
+  playAtIndex(content, int index) async {
     final playManage = context.read<PlaylistManage>();
+    if (playManage.playIndex == index && index != 0) {
+      return;
+    }
     // 是否是第一次播放
     if (_openState) {
     } else {
@@ -605,7 +609,7 @@ class _SearchPageState extends State<SearchPage> {
             itemCount: _songList.length,
             itemBuilder: (BuildContext context, int index) {
               return GestureDetector(
-                onTap: () => playAtIndex(_songList[index]),
+                onTap: () => playAtIndex(_songList[index], index),
                 child: SearchSongItem(
                   index: index,
                   content: _songList[index],
@@ -647,9 +651,22 @@ class _SearchPageState extends State<SearchPage> {
           widget = GridView.builder(
             itemCount: _singerList.length,
             itemBuilder: (BuildContext context, int index) {
-              return SearchSingerItem(
-                index: index,
-                content: _singerList[index],
+              return GestureDetector(
+                child: SearchSingerItem(
+                  index: index,
+                  content: _singerList[index],
+                ),
+                onTap: () => openRoute(
+                    page: SearchSinger(
+                      platform: getPlatformPara(),
+                      platformMusic: platformMusic,
+                      //QQ 是mid 其他的是id
+                      id: platformMusic == PlatformMusic.QQ
+                          ? _singerList[index].mid
+                          : _singerList[index].id,
+                      singer:_singerList[index].name
+                    ),
+                    context: context),
               );
             },
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

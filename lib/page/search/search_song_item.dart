@@ -132,12 +132,13 @@ class _SearchSongItemState extends State<SearchSongItem> {
                   ],
                 ),
               ),
-              IconButton(
-                icon: Icon(Icons.music_video, color: Colors.white),
-                onPressed: () {
-                  getMusicVideo();
-                },
-              ),
+              //api 修改暂不支持mv
+              // IconButton(
+              //   icon: Icon(Icons.music_video, color: Colors.white),
+              //   onPressed: () {
+              //     getMusicVideo();
+              //   },
+              // ),
               IconButton(
                 icon: Icon(Icons.more_vert, color: Colors.white),
                 onPressed: null,
